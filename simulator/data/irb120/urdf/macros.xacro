@@ -8,7 +8,7 @@
   <xacro:property name="joint_rpy" value="0 0 0" />
   <xacro:property name="joint_type" value="revolute" />
 
-  <xacro:macro name="irb_120_link" params="name mesh:=0 orig_rpy:=^ orig_xyz:=^ parent:=0 joint_axis:=^ joint_range:=^ joint_xyz:=^ joint_rpy:=^ joint_type:=^ mass:=0 com:=0 com_rpy:=0 inertia:=0 mesh_type=dae">
+  <xacro:macro name="irb_120_link" params="name mesh:=0 orig_rpy:=^ orig_xyz:=^ parent:=0 joint_axis:=^ joint_range:=^ joint_xyz:=^ joint_rpy:=^ joint_type:=^ mass:=0 com:=0 com_rpy:=0 inertia:=0 mesh_type=dae mesh_scale=1">
     <xacro:if value="${mesh == 0}">
       <xacro:property name="mesh" value="${name}" />
     </xacro:if>
@@ -16,7 +16,7 @@
     <link name="${name}">
       <visual>
         <geometry>
-          <mesh filename="../cad/${mesh}.${mesh_type}"/>
+          <mesh filename="../cad/${mesh}.${mesh_type}" scale="${mesh_scale}" />
         </geometry>
 
         <origin rpy="${orig_rpy}" xyz="${orig_xyz}" />
@@ -24,7 +24,7 @@
 
       <collision>
         <geometry>
-          <mesh filename="../cad/${mesh}.${mesh_type}"/>
+          <mesh filename="../cad/${mesh}.${mesh_type}" scale="${mesh_scale}" />
         </geometry>
 
         <origin rpy="${orig_rpy}" xyz="${orig_xyz}" />
