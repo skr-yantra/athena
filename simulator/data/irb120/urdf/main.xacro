@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="irb_120">
+  <xacro:include filename="geometry.xacro" />
+  <xacro:include filename="physical.xacro" />
+  <xacro:include filename="macros.xacro" />
+  
+  <xacro:irb_120_link
+    name="base_link" 
+    mesh="base" 
+    orig_xyz="${orig_base_link}"
+    mass="${mass_base_link}"
+    com="${com_base_link}"
+    com_rpy="${com_base_link_rpy"
+    inertia="${inertia_base_link}"
+  />
+
+  <xacro:irb_120_link
+    name="link1"
+    parent="base_link"
+    orig_xyz="${orig_link1}"
+    joint_axis="0 0 1"
+    joint_xyz="${orig_base_joint}"
+    joint_range="${orig_base_joint_range}"
+    mass="${mass_link1}"
+    com="${com_link1}"
+    com_rpy="${com_link1_rpy}"
+    inertia="${inertia_link1}"
+  />
+
+  <xacro:irb_120_link
+    name="link2"
+    parent="link1"
+    orig_xyz="${orig_link2}"
+    joint_axis="0 1 0"
+    joint_xyz="${orig_link1_joint}"
+    joint_range="${orig_link1_joint_range}"
+    mass="${mass_link2}"
+    com="${com_link2}"
+    com_rpy="${com_link2_rpy}"
+    inertia="${inertia_link2}"
+  />
+
+  <xacro:irb_120_link
+    name="link3"
+    parent="link2"
+    orig_xyz="${orig_link3}"
+    joint_axis="0 1 0"
+    joint_xyz="${orig_link2_joint}"
+    joint_range="${orig_link2_joint_range}"
+    mass="${mass_link3}"
+    com="${com_link3}"
+    com_rpy="${com_link3_rpy}"
+    inertia="${inertia_link3}"
+  />
+
+  <xacro:irb_120_link
+    name="link4"
+    parent="link3"
+    orig_xyz="${orig_link4}"
+    joint_axis="1 0 0"
+    joint_xyz="${orig_link3_joint}"
+    joint_range="${orig_link3_joint_range}"
+    mass="${mass_link4}"
+    com="${com_link4}"
+    com_rpy="${com_link4_rpy}"
+    inertia="${inertia_link4}"
+  />
+
+  <xacro:irb_120_link
+    name="link5"
+    parent="link4"
+    orig_xyz="${orig_link5}"
+    joint_axis="0 1 0"
+    joint_xyz="${orig_link4_joint}"
+    joint_range="${orig_link4_joint_range}"
+    mass="${mass_link5}"
+    com="${com_link5}"
+    com_rpy="${com_link5_rpy}"
+    inertia="${inertia_link5}"
+  />
+
+  <xacro:irb_120_link
+    name="link6"
+    parent="link5"
+    orig_xyz="${orig_link6}"
+    orig_rpy="${orig_link6_rpy}"
+    joint_axis="1 0 0"
+    joint_xyz="${orig_link5_joint}"
+    joint_range="${orig_link5_joint_range}"
+    mass="${mass_link6}"
+    com="${com_link6}"
+    com_rpy="${com_link6_rpy}"
+    inertia="${inertia_link6}"
+  />
+
+  <xacro:include filename="gripper.xacro" />
+</robot>

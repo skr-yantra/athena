@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="orig_base_link" value="0 0 0" />
+  <xacro:property name="orig_base_joint" value="0 0 0.166" />
+  <xacro:property name="orig_base_joint_range" value="${[-pi*165/180, pi*165/180]}" />
+
+  <xacro:property name="orig_link1" value="0 0 -0.166" />
+  <xacro:property name="orig_link1_joint" value="0 0 0.124" />
+  <xacro:property name="orig_link1_joint_range" value="${[-pi*110/180, pi*110/180]}" />
+
+  <xacro:property name="orig_link2" value="0 -0.058 0.270" />
+  <xacro:property name="orig_link2_joint" value="0 0 0.270" />
+  <xacro:property name="orig_link2_joint_range" value="${[-pi*110/180, pi*70/180]}" />
+
+  <xacro:property name="orig_link3" value="0.07196 0 -0.06615" />
+  <xacro:property name="orig_link3_joint" value="0.14961 0 0.0706" />
+  <xacro:property name="orig_link3_joint_range" value="${[-pi*160/180, pi*160/180]}" />
+
+  <xacro:property name="orig_link4" value="0.1524 0 0" />
+  <xacro:property name="orig_link4_joint" value="0.1524 0 0" />
+  <xacro:property name="orig_link4_joint_range" value="${[-pi*120/180, pi*120/180]}" />
+
+  <xacro:property name="orig_link5" value="-0.30886 0 -0.630" />
+  <xacro:property name="orig_link5_joint" value="0.059 0 0" />
+  <xacro:property name="orig_link5_joint_range" value="${[-pi, pi]}" />
+
+  <xacro:property name="orig_link6" value="0 0 0" />
+  <xacro:property name="orig_link6_rpy" value="0 ${pi/2} 0" />
+  <xacro:property name="orig_link6_joint" value="0 0 0" />
+
+  <xacro:property name="orig_gripper_base" value="0 0 0" />
+  <xacro:property name="orig_gripper_base_rpy" value="${pi/2} 0 ${pi/2}" />
+  <xacro:property name="orig_gripper_base_joint" value="0 0 0" />
+  <xacro:property name="orig_gripper_base_joint_range" value="${[0, 0.012]}" />
+
+  <xacro:property name="orig_gripper_finger1" value="0 0 0" />
+  <xacro:property name="orig_gripper_finger1_rpy" value="${pi/2} 0 ${pi/2}" />
+
+  <xacro:property name="orig_gripper_finger2" value="0 0 0" />
+  <xacro:property name="orig_gripper_finger2_rpy" value="${-pi/2} 0 ${-pi/2}" />
+</robot>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="geometry.xacro" />
+  <xacro:include filename="macros.xacro" />
+
+  <xacro:irb_120_link
+    name="gripper_base"
+    orig_xyz="${orig_gripper_base}"
+    orig_rpy="${orig_gripper_base_rpy}"
+    parent="link6"
+    joint_type="fixed"
+    joint_xyz="${orig_link6_joint}"
+  />
+
+  <xacro:irb_120_link
+    name="gripper_finger1"
+    mesh="gripper_finger"
+    orig_xyz="${orig_gripper_finger1}"
+    orig_rpy="${orig_gripper_finger1_rpy}"
+    parent="gripper_base"
+    joint_xyz="${orig_gripper_base_joint}"
+    joint_type="prismatic"
+    joint_range="${orig_gripper_base_joint_range}"
+    joint_axis="0 -1 0"
+  />
+
+  <xacro:irb_120_link
+    name="gripper_finger2"
+    mesh="gripper_finger"
+    orig_xyz="${orig_gripper_finger2}"
+    orig_rpy="${orig_gripper_finger2_rpy}"
+    parent="gripper_base"
+    joint_xyz="${orig_gripper_base_joint}"
+    joint_type="prismatic"
+    joint_range="${orig_gripper_base_joint_range}"
+    joint_axis="0 1 0"
+  />
+</robot>

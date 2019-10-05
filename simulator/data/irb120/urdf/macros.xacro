@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="orig_rpy" value="${pi/2} 0 0" />
+  <xacro:property name="orig_xyz" value="0 0 0" />
+  <xacro:property name="joint_axis" value="0 1 0" />
+  <xacro:property name="joint_range" value="${[-pi, pi]}" />
+  <xacro:property name="joint_xyz" value="0 0 0" />
+  <xacro:property name="joint_rpy" value="0 0 0" />
+  <xacro:property name="joint_type" value="revolute" />
+
+  <xacro:macro name="irb_120_link" params="name mesh:=0 orig_rpy:=^ orig_xyz:=^ parent:=0 joint_axis:=^ joint_range:=^ joint_xyz:=^ joint_rpy:=^ joint_type:=^ mass:=0 com:=0 com_rpy:=0 inertia:=0">
+    <xacro:if value="${mesh == 0}">
+      <xacro:property name="mesh" value="${name}" />
+    </xacro:if>
+    
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <mesh filename="../cad/${mesh}.dae"/>
+        </geometry>
+
+        <origin rpy="${orig_rpy}" xyz="${orig_xyz}" />
+      </visual>
+
+      <collision>
+        <geometry>
+          <mesh filename="../cad/${mesh}.dae"/>
+        </geometry>
+
+        <origin rpy="${orig_rpy}" xyz="${orig_xyz}" />
+      </collision>
+
+      <xacro:unless value="${inertia==0}">
+        <inertial>
+          <mass value="${mass}" />
+          <origin xyz="${com}" rpy="${com_rpy}" />
+          <inertia ixx="${inertia['ixx']}" ixy="${inertia['ixy']}"
+                   ixz="${inertia['ixz']}" iyy="${inertia['iyy']}"
+                   iyz="${inertia['iyz']}" izz="${inertia['izz']}"
+          />
+        </inertial>
+      </xacro:unless>
+
+    </link>
+
+    <xacro:unless value="${parent == 0}">
+      <joint name="joint_${parent}_${name}" type="${joint_type}">
+        <axis xyz="${joint_axis}"/>
+        <limit effort="1000.0" lower="${joint_range[0]}" upper="${joint_range[1]}" velocity="0.5"/>
+        <origin rpy="${joint_rpy}" xyz="${joint_xyz}"/>
+        <parent link="${parent}"/>
+        <child link="${name}"/>
+      </joint>
+    </xacro:unless>
+  </xacro:macro>
+</robot>

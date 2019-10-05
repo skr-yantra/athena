@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:property name="mass_base_link" value="6.215" />
+    <xacro:property name="com_base_link" value="-0.04204 8.01E-05 0.07964" />
+    <xacro:property name="com_base_link_rpy" value="0 0 0" />
+    <xacro:property name="inertia_base_link" value='${dict(
+        ixx="0.0247272", ixy="-8.0784E-05", ixz="0.00130902",
+        iyy="0.0491285", iyz="-8.0419E-06", izz="0.0472376"
+    )}' />
+
+    <xacro:property name="mass_link1" value="3.067" />
+    <xacro:property name="com_link1" value="9.77E-05 -0.00012 0.23841" />
+    <xacro:property name="com_link1_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link1" value='${dict(
+        ixx="0.0142175", ixy="-1.28579E-05", ixz="-2.31364E-05",
+        iyy="0.0144041", iyz="1.93404E-05", izz="0.0104533"
+    )}' />
+
+    <xacro:property name="mass_link2" value="3.909" />
+    <xacro:property name="com_link2" value="0.00078 -0.00212 0.10124" />
+    <xacro:property name="com_link2_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link2" value='${dict(
+        ixx="0.0603111", ixy="9.83431E-06", ixz="5.72407E-05",
+        iyy="0.041569", iyz="-0.00050497", izz="0.0259548"
+    )}' />
+
+    <xacro:property name="mass_link3" value="2.944" />
+    <xacro:property name="com_link3" value="0.02281 0.00106 0.05791" />
+    <xacro:property name="com_link3_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link3" value='${dict(
+        ixx="0.00835606", ixy="-8.01545E-05", ixz="0.00142884",
+        iyy="0.016713", iyz="-0.000182227", izz="0.0126984"
+    )}' />
+
+    <xacro:property name="mass_link4" value="1.328" />
+    <xacro:property name="com_link4" value="0.2247 0.00015 0.00041" />
+    <xacro:property name="com_link4_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link4" value='${dict(
+        ixx="0.00284661", ixy="-2.12765E-05", ixz="-1.6435E-05",
+        iyy="0.00401346", iyz="1.31336E-05", izz="0.0052535"
+    )}' />
+
+    <xacro:property name="mass_link5" value="0.546" />
+    <xacro:property name="com_link5" value="-0.00109 3.68E-05 6.22E-05" />
+    <xacro:property name="com_link5_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link5" value='${dict(
+         ixx="0.000404891", ixy="1.61943E-06", ixz="8.46805E-07",
+         iyy="0.000892825", iyz="-1.51792E-08", izz="0.000815468"
+    )}' />
+
+    <xacro:property name="mass_link6" value="0.137" />
+    <xacro:property name="com_link6" value="-0.00706 -0.00017 -1.32E-06" />
+    <xacro:property name="com_link6_rpy" value="0 0 0" />
+    <xacro:property name="inertia_link6" value='${dict(
+         ixx="0.001", ixy="0", ixz="0",
+         iyy="0.001", iyz="0", izz="0.001"
+    )}' />
+</robot>
