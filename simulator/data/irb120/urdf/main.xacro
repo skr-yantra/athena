@@ -3,11 +3,22 @@
   <xacro:include filename="geometry.xacro" />
   <xacro:include filename="physical.xacro" />
   <xacro:include filename="macros.xacro" />
+
+  <xacro:irb_120_link
+    name="foundation"
+    orig_xyz="${orig_foundation_link}"
+    orig_rpy="0 0 0"
+    mesh="foundation"
+    mesh_type="stl"
+    mesh_scale="0.001"
+  />
   
   <xacro:irb_120_link
-    name="base_link" 
-    mesh="base" 
+    name="base"
+    parent="foundation"
     orig_xyz="${orig_base_link}"
+    joint_type="fixed"
+    joint_xyz="${orig_foundation_joint}"
     mass="${mass_base_link}"
     com="${com_base_link}"
     com_rpy="${com_base_link_rpy"
@@ -16,7 +27,7 @@
 
   <xacro:irb_120_link
     name="link1"
-    parent="base_link"
+    parent="base"
     orig_xyz="${orig_link1}"
     joint_axis="0 0 1"
     joint_xyz="${orig_base_joint}"

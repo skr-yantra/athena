@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:property name="orig_foundation_link" value="0 0 0" />
+  <xacro:property name="orig_foundation_joint" value="0 0 0.3" />
+
   <xacro:property name="orig_base_link" value="0 0 0" />
   <xacro:property name="orig_base_joint" value="0 0 0.166" />
   <xacro:property name="orig_base_joint_range" value="${[-pi*165/180, pi*165/180]}" />
