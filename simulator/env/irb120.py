@@ -17,7 +17,8 @@ MOVABLE_JOINT_INDICES = REVOLUTE_JOINT_INDICES + GRIPPER_FINGER_INDICES
 
 class IRB120(object):
 
-    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3):
+    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3,
+                 gripper_max_force=250.):
         self._urdf_robot = abb_irb120()
         assert_exist(self._urdf_robot)
 
@@ -30,6 +31,7 @@ class IRB120(object):
         self._gravity = gravity
         self._realtime = realtime
         self._joint_state_tolerance = joint_state_tolerance
+        self._gripper_max_force = gripper_max_force
 
         self._setup()
 
@@ -119,7 +121,8 @@ class IRB120(object):
             self._robot_id,
             GRIPPER_FINGER_INDICES,
             pb.POSITION_CONTROL,
-            position
+            position,
+            forces=(self._gripper_max_force, ) * 2
         )
 
     def _wait_for_gripper_open(self):
@@ -136,6 +139,10 @@ class IRB120(object):
 
             if diff > 0.05:
                 break
+
+    def spin(self):
+        while True:
+            self._tick()
 
     def _tick(self):
         if self._realtime:
