@@ -17,7 +17,8 @@ MOVABLE_JOINT_INDICES = REVOLUTE_JOINT_INDICES + GRIPPER_FINGER_INDICES
 
 class IRB120(object):
 
-    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3):
+    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3, gripper_force=1,
+                 gripper_finger_velocity=0.01):
         self._urdf_robot = abb_irb120()
         assert_exist(self._urdf_robot)
 
@@ -30,6 +31,8 @@ class IRB120(object):
         self._gravity = gravity
         self._realtime = realtime
         self._joint_state_tolerance = joint_state_tolerance
+        self._gripper_force = gripper_force
+        self._gripper_finger_velocity = gripper_finger_velocity
 
         self._plane_id = None
         self._robot_id = None
@@ -55,7 +58,7 @@ class IRB120(object):
 
     @property
     def joint_state(self):
-        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, MOVABLE_JOINT_INDICES)])
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, MOVABLE_JOINT_INDICES)])[:-2]
 
     def reset(self):
         self._pb_client.resetSimulation()
@@ -69,7 +72,7 @@ class IRB120(object):
             GRIPPER_INDEX,
             (px, py, pz),
             pb.getQuaternionFromEuler((ax, ay, az))
-        )
+        )[:-2]
 
         self._move_joint(joint_states)
 
@@ -82,15 +85,12 @@ class IRB120(object):
             ax + dax, ay + day, az + daz,
         ))
 
-    def move_gripper(self, width):
-        pass
-
     def _move_joint(self, joint_states):
-        assert len(MOVABLE_JOINT_INDICES) == len(joint_states)
+        assert len(REVOLUTE_JOINT_INDICES) == len(joint_states)
 
         self._pb_client.setJointMotorControlArray(
             self._robot_id,
-            MOVABLE_JOINT_INDICES,
+            REVOLUTE_JOINT_INDICES,
             pb.POSITION_CONTROL,
             joint_states
         )
@@ -100,6 +100,23 @@ class IRB120(object):
     def _wait_for_joint_state(self, target_state):
         while np.any(np.abs(self.joint_state - target_state) > self._joint_state_tolerance):
             self._tick()
+
+    def hold_gripper(self):
+        self._move_gripper((self._gripper_finger_velocity, ) * 2)
+
+    def release_gripper(self):
+        self._move_gripper((-self._gripper_finger_velocity, ) * 2)
+
+    def _move_gripper(self, velocity):
+        assert len(velocity) == len(GRIPPER_FINGER_INDICES)
+
+        self._pb_client.setJointMotorControlArray(
+            self._robot_id,
+            GRIPPER_FINGER_INDICES,
+            pb.VELOCITY_CONTROL,
+            targetVelocities=velocity,
+            forces=(self._gripper_force, ) * len(velocity)
+        )
 
     def _tick(self):
         if self._realtime:
