@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="irb_120">
   <xacro:include filename="geometry.xacro" />
-  <xacro:include filename="physical.xacro" />
+  <xacro:include filename="physics.xacro" />
   <xacro:include filename="macros.xacro" />
 
   <xacro:irb_120_link
