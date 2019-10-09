@@ -57,7 +57,7 @@ class IRB120(object):
 
     @property
     def joint_state(self):
-        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, MOVABLE_JOINT_INDICES)])[:-2]
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, REVOLUTE_JOINT_INDICES)])
 
     @property
     def gripper_state(self):
