@@ -17,7 +17,7 @@ MOVABLE_JOINT_INDICES = REVOLUTE_JOINT_INDICES + GRIPPER_FINGER_INDICES
 
 class IRB120(object):
 
-    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-4):
+    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3):
         self._urdf_robot = abb_irb120()
         assert_exist(self._urdf_robot)
 
