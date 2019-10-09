@@ -34,10 +34,9 @@ class IRB120(object):
         self._gripper_force = gripper_force
         self._gripper_finger_velocity = gripper_finger_velocity
 
-        self._plane_id = None
-        self._robot_id = None
+        self._setup()
 
-    def setup(self):
+    def _setup(self):
         is_connected, _ = self._pb_client.getConnectionInfo()
         if not is_connected:
             raise Exception('Bullet physics client not connected')
@@ -62,7 +61,7 @@ class IRB120(object):
 
     def reset(self):
         self._pb_client.resetSimulation()
-        self.setup()
+        self._setup()
 
     def move_absolute(self, pose):
         px, py, pz, ax, ay, az = pose
