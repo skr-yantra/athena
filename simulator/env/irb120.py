@@ -68,9 +68,7 @@ class IRB120(object):
             self._robot_id,
             GRIPPER_INDEX,
             (px, py, pz),
-            pb.getQuaternionFromEuler((ax, ay, az)),
-            maxNumIterations=100,
-            residualThreshold=1e-6
+            pb.getQuaternionFromEuler((ax, ay, az))
         )
 
         self._move_joint(joint_states)
