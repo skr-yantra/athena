@@ -17,8 +17,7 @@ MOVABLE_JOINT_INDICES = REVOLUTE_JOINT_INDICES + GRIPPER_FINGER_INDICES
 
 class IRB120(object):
 
-    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3, gripper_force=1,
-                 gripper_finger_velocity=0.01):
+    def __init__(self, pb_client=pb, gravity=(0, 0, -9.81), realtime=True, joint_state_tolerance=1e-3):
         self._urdf_robot = abb_irb120()
         assert_exist(self._urdf_robot)
 
@@ -31,8 +30,6 @@ class IRB120(object):
         self._gravity = gravity
         self._realtime = realtime
         self._joint_state_tolerance = joint_state_tolerance
-        self._gripper_force = gripper_force
-        self._gripper_finger_velocity = gripper_finger_velocity
 
         self._setup()
 
@@ -47,6 +44,9 @@ class IRB120(object):
         self._plane_id = self._pb_client.loadURDF(self._urdf_plane)
         self._robot_id = self._pb_client.loadURDF(self._urdf_robot, useFixedBase=True)
 
+        self._pb_client.enableJointForceTorqueSensor(self._robot_id, GRIPPER_FINGER_INDICES[0])
+        self._pb_client.enableJointForceTorqueSensor(self._robot_id, GRIPPER_FINGER_INDICES[1])
+
     @property
     def gripper_pose(self):
         gripper_state = self._pb_client.getLinkState(self._robot_id, GRIPPER_INDEX)
@@ -58,6 +58,10 @@ class IRB120(object):
     @property
     def joint_state(self):
         return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, MOVABLE_JOINT_INDICES)])[:-2]
+
+    @property
+    def gripper_state(self):
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, GRIPPER_FINGER_INDICES)])
 
     def reset(self):
         self._pb_client.resetSimulation()
@@ -101,21 +105,37 @@ class IRB120(object):
             self._tick()
 
     def hold_gripper(self):
-        self._move_gripper((self._gripper_finger_velocity, ) * 2)
+        self._move_gripper([0, 0])
+        self._wait_for_gripper_hold()
 
     def release_gripper(self):
-        self._move_gripper((-self._gripper_finger_velocity, ) * 2)
+        self._move_gripper([0.012, 0.012])
+        self._wait_for_gripper_open()
 
-    def _move_gripper(self, velocity):
-        assert len(velocity) == len(GRIPPER_FINGER_INDICES)
+    def _move_gripper(self, position):
+        assert len(position) == len(GRIPPER_FINGER_INDICES)
 
         self._pb_client.setJointMotorControlArray(
             self._robot_id,
             GRIPPER_FINGER_INDICES,
-            pb.VELOCITY_CONTROL,
-            targetVelocities=velocity,
-            forces=(self._gripper_force, ) * len(velocity)
+            pb.POSITION_CONTROL,
+            position
         )
+
+    def _wait_for_gripper_open(self):
+        ul1 = self._pb_client.getJointInfo(self._robot_id, GRIPPER_FINGER_INDICES[0])[9]
+        ul2 = self._pb_client.getJointInfo(self._robot_id, GRIPPER_FINGER_INDICES[1])[9]
+        while np.any(np.abs(self.gripper_state - [ul1, ul2]) > self._joint_state_tolerance):
+            self._tick()
+
+    def _wait_for_gripper_hold(self):
+        while True:
+            self._tick()
+            fx, fy, fz, _, _, _ = self._pb_client.getJointState(self._robot_id, GRIPPER_FINGER_INDICES[1])[2]
+            diff = np.abs(np.sqrt(np.sum(np.array([fx, fy, fz]))**2) - 9.81)
+
+            if diff > 0.05:
+                break
 
     def _tick(self):
         if self._realtime:
