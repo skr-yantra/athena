@@ -58,7 +58,8 @@ class IRB120(object):
         return np.array([px, py, pz, ax, ay, az])
 
     def reset(self):
-        pass
+        self._pb_client.resetSimulation()
+        self.setup()
 
     def move_absolute(self, pose):
         px, py, pz, ax, ay, az = pose
