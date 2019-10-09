@@ -4,7 +4,7 @@ import pybullet as p
 import time
 import pybullet_data
 
-from data import abb_irb120
+from simulator.data import abb_irb120
 
 urdf = abb_irb120()
 
