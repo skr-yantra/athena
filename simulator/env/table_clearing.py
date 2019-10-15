@@ -19,24 +19,24 @@ class TableClearingEnvironment(Environment):
 
         self._ground = Ground(self._pb_client)
         self._robot = IRB120(self._pb_client)
-        self._src_table = Table(self._pb_client, pose=(0, -0.5, 0, 0, 0, 0), scale=0.5)
-        self._dest_table = Table(self._pb_client, pose=(0, 0.5, 0, 0, 0, 0), scale=0.5)
+        self._src_table = Table(self._pb_client, position=(0, -0.5, 0), scale=0.5)
+        self._dest_table = Table(self._pb_client, position=(0, 0.5, 0), scale=0.5)
 
-        self._src_tray = Tray(self._pb_client, pose=(0, -0.5, self._src_table.z_end, 0, 0, 0), scale=0.5)
-        self._dest_tray = Tray(self._pb_client, pose=(0, 0.5, self._dest_table.z_end, 0, 0, 0), scale=0.5)
+        self._src_tray = Tray(self._pb_client, position=(0, -0.5, self._src_table.z_end), scale=0.5)
+        self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
 
         self._gripper_cam = Camera(
             self._pb_client,
             near_plane=0.001,
             far_plane=1.,
-            pose_reader=lambda: self._robot.gripper_pose_quaternion,
+            pose_reader=lambda: self._robot.gripper_pose,
             debug=False
         )
 
         for i in range(5):
             self._src_tray.add_random_cube()
 
-        self._robot.set_gripper_pose((0, -0.7, 0.5, math.pi/2, math.pi/2, 0))
+        self._robot.set_gripper_pose((0, -0.7, 0.5), self._pb_client.getQuaternionFromEuler((math.pi/2, math.pi/2, 0)))
         self._robot.open_gripper()
 
     def step(self):

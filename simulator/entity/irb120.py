@@ -16,9 +16,9 @@ FINGER_JOINT_RANGE = np.array([
 
 class IRB120(Entity):
 
-    def __init__(self, pb_client=pb, pose=(0., 0., 0., 0., 0., 0.), fixed=True, scale=1., max_finger_force=200.):
+    def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fixed=True, scale=1., max_finger_force=200.):
         urdf = abb_irb120()
-        super(IRB120, self).__init__(urdf, pb_client, pose, fixed, scale)
+        super(IRB120, self).__init__(urdf, pb_client, position, orientation, fixed, scale)
 
         self._max_finger_force = max_finger_force
 
@@ -31,30 +31,42 @@ class IRB120(Entity):
         return np.array([i[0] for i in self._pb_client.getJointStates(self._id, GRIPPER_FINGER_INDICES)])
 
     @property
-    def gripper_pose(self):
+    def gripper_pose_euler(self):
         gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
         px, py, pz = gripper_state[0]
         ax, ay, az = pb.getEulerFromQuaternion(gripper_state[1])
 
-        return np.array([px, py, pz, ax, ay, az])
+        return np.array([px, py, pz]), np.array([ax, ay, az])
 
     @property
-    def gripper_pose_quaternion(self):
+    def gripper_pose(self):
         gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
         return gripper_state[0], gripper_state[1]
 
-    def set_gripper_pose(self, pose):
+    def set_gripper_pose(self, position, orientation):
         joint_states = pb.calculateInverseKinematics(
             self._id,
             GRIPPER_INDEX,
-            pose[:3],
-            pb.getQuaternionFromEuler(pose[3:])
+            position,
+            orientation
         )[:-2]
 
         self.set_revolute_joint_state(joint_states)
 
-    def move_gripper_pose(self, dpose):
-        return self.set_gripper_pose(self.gripper_pose + dpose)
+    def move_gripper_pose(self, dposition, dorientation):
+        current_position, current_orientation = self.gripper_pose
+
+        _, orientation = self._pb_client.multiplyTransforms(
+            (0, 0, 0),
+            current_orientation,
+            (0, 0, 0),
+            dorientation
+        )
+
+        return self.set_gripper_pose(
+            current_position + dposition,
+            orientation
+        )
 
     def set_revolute_joint_state(self, joint_states):
         assert len(REVOLUTE_JOINT_INDICES) == len(joint_states)
