@@ -6,7 +6,7 @@ from .base import Sensor
 class Camera(Sensor):
 
     def __init__(self, pb_client=pb, resolution=(320, 240), fov=60, near_plane=0.01, far_plane=100.,
-                 pose_reader=lambda: ((0, 0, 1), (0, 1, 0, 0)), debug=False):
+                 view_calculator=lambda: ((0, 0, 1), (0, 0, 0), (1, 0, 1)), debug=False):
         super(Camera, self).__init__(pb_client)
         self._res_x, self._res_y = resolution
 
@@ -16,33 +16,12 @@ class Camera(Sensor):
             near_plane,
             far_plane,
         )
-        self._pose_reader = pose_reader
+        self._view_calculator = view_calculator
         self._debug = debug
 
     @property
     def state(self):
-        position, orientation = self._pose_reader()
-
-        eye, _ = self._pb_client.multiplyTransforms(
-            position,
-            orientation,
-            (0, 0, 0.05),
-            (1, 0, 0, 0)
-        )
-
-        to, _ = self._pb_client.multiplyTransforms(
-            position,
-            orientation,
-            (0.1, 0, 0.05),
-            (1, 0, 0, 0)
-        )
-
-        up, _ = self._pb_client.multiplyTransforms(
-            position,
-            orientation,
-            (0, 0, 0.15),
-            (1, 0, 0, 0)
-        )
+        eye, to, up = self._view_calculator()
 
         view_matrix = self._pb_client.computeViewMatrix(
             eye,

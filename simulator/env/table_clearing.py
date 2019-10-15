@@ -29,7 +29,7 @@ class TableClearingEnvironment(Environment):
             self._pb_client,
             near_plane=0.001,
             far_plane=1.,
-            pose_reader=lambda: self._robot.gripper_pose,
+            view_calculator=self._gripper_cam_view_calculator,
             debug=False
         )
 
@@ -45,3 +45,28 @@ class TableClearingEnvironment(Environment):
         if self._step % (240/10) == 0:
             self._gripper_cam.state
 
+    def _gripper_cam_view_calculator(self):
+        position, orientation = self._robot.gripper_pose
+
+        eye, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0, 0, 0.05),
+            (1, 0, 0, 0)
+        )
+
+        to, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0.1, 0, 0.05),
+            (1, 0, 0, 0)
+        )
+
+        up, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0, 0, 0.15),
+            (1, 0, 0, 0)
+        )
+
+        return eye, to, up
