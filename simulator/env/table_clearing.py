@@ -6,12 +6,15 @@ from ..entity.irb120 import IRB120
 from ..entity.ground import Ground
 from ..entity.table import Table
 from ..entity.tray import Tray
+from ..sensors.camera import Camera
 from .base import Environment
 
 
 class TableClearingEnvironment(Environment):
 
     def _setup(self):
+        super(TableClearingEnvironment, self)._setup()
+
         self._pb_client.setGravity(0, 0, -9.81)
 
         self._ground = Ground(self._pb_client)
@@ -22,6 +25,16 @@ class TableClearingEnvironment(Environment):
         self._src_tray = Tray(self._pb_client, pose=(0, -0.5, self._src_table.z_end, 0, 0, 0), scale=0.5)
         self._dest_tray = Tray(self._pb_client, pose=(0, 0.5, self._dest_table.z_end, 0, 0, 0), scale=0.5)
 
-        for i in range(50):
+        self._gripper_cam = Camera(self._pb_client, pose_reader=lambda: self._robot.gripper_pose_quaternion, debug=False)
+
+        for i in range(5):
             self._src_tray.add_random_cube()
+
+        self._robot.set_gripper_pose((0, -0.7, 0.5, math.pi/2, math.pi/2, 0))
+
+    def step(self):
+        super(TableClearingEnvironment, self).step()
+
+        if self._step % (240/10) == 0:
+            self._gripper_cam.state
 

@@ -50,6 +50,18 @@ class IRB120(object):
         self._pb_client.enableJointForceTorqueSensor(self._robot_id, GRIPPER_FINGER_INDICES[1])
 
     @property
+    def joint_states(self):
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, MOVABLE_JOINT_INDICES)])
+
+    @property
+    def revolute_joint_states(self):
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, REVOLUTE_JOINT_INDICES)])
+
+    @property
+    def gripper_finger_joint_states(self):
+        return np.array([i[0] for i in self._pb_client.getJointStates(self._robot_id, GRIPPER_FINGER_INDICES)])
+
+    @property
     def gripper_pose(self):
         gripper_state = self._pb_client.getLinkState(self._robot_id, GRIPPER_INDEX)
         px, py, pz = gripper_state[0]

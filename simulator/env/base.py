@@ -13,11 +13,14 @@ class Environment(object):
 
     def spin(self):
         while True:
-            pb.stepSimulation()
+            self.step()
             time.sleep(1./240.)
 
+    def step(self):
+        self._pb_client.stepSimulation()
+
     def _setup(self):
-        unimplemented()
+        self._step = 0
 
     def reset(self):
         self._pb_client.resetSimulation()

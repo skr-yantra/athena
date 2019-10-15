@@ -38,6 +38,11 @@ class IRB120(Entity):
 
         return np.array([px, py, pz, ax, ay, az])
 
+    @property
+    def gripper_pose_quaternion(self):
+        gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
+        return gripper_state[0], gripper_state[1]
+
     def set_gripper_pose(self, pose):
         joint_states = pb.calculateInverseKinematics(
             self._id,
