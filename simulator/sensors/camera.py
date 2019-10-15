@@ -1,6 +1,3 @@
-import math
-
-import numpy as np
 import pybullet as pb
 
 from .base import Sensor
