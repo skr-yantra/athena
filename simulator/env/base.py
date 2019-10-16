@@ -2,8 +2,6 @@ import time
 
 import pybullet as pb
 
-from ..utils import unimplemented
-
 
 class Environment(object):
 

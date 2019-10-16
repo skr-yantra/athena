@@ -1,13 +1,10 @@
 import math
 
-import pybullet as pb
-
-from ..entity.irb120 import IRB120
+from .base import Environment
 from ..entity.ground import Ground
+from ..entity.irb120 import IRB120
 from ..entity.table import Table
 from ..entity.tray import Tray
-from ..sensors.camera import Camera
-from .base import Environment
 
 
 class TableClearingEnvironment(Environment):
