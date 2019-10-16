@@ -10,7 +10,7 @@ class Environment(object):
     def __init__(self, pb_client=pb, step_size=1./240., realtime=True):
         self._pb_client = pb_client
 
-        self._step_size = step_size
+        self._step_size = step_size * 10e9
         self._last_step_time = time.time_ns()
         self._realtime = realtime
 
@@ -24,8 +24,12 @@ class Environment(object):
         self._pb_client.stepSimulation()
         current = time.time_ns()
         elapsed = current - self._last_step_time
-        if self._realtime and elapsed < self._step_size:
-            time.sleep(self._step_size-elapsed)
+        to_sleep = max(0., self._step_size - elapsed)
+
+        if self._realtime and to_sleep > 0:
+            time.sleep(to_sleep / 10e9)
+
+        self._last_step_time = current + to_sleep
 
     def _setup(self):
         self._step = 0
