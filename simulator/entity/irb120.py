@@ -3,6 +3,7 @@ import numpy as np
 
 from ..data import abb_irb120
 from .base import Entity
+from ..sensors.camera import Camera
 
 REVOLUTE_JOINT_INDICES = (1, 2, 3, 4, 5, 6)
 GRIPPER_INDEX = 7
@@ -21,6 +22,14 @@ class IRB120(Entity):
         super(IRB120, self).__init__(urdf, pb_client, position, orientation, fixed, scale)
 
         self._max_finger_force = max_finger_force
+
+        self._gripper_cam = Camera(
+            self._pb_client,
+            near_plane=0.001,
+            far_plane=1.,
+            view_calculator=self._gripper_cam_view_calculator,
+            debug=False
+        )
 
     @property
     def revolute_joint_state(self):
@@ -94,3 +103,32 @@ class IRB120(Entity):
             joint_states,
             forces=(self._max_finger_force,) * 2
         )
+
+    def capture_gripper_camera(self):
+        return self._gripper_cam.state
+
+    def _gripper_cam_view_calculator(self):
+        position, orientation = self.gripper_pose
+
+        eye, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0, 0, 0.05),
+            (1, 0, 0, 0)
+        )
+
+        to, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0.1, 0, 0.05),
+            (1, 0, 0, 0)
+        )
+
+        up, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (0, 0, 0.15),
+            (1, 0, 0, 0)
+        )
+
+        return eye, to, up
