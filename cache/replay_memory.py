@@ -26,7 +26,7 @@ class ReplayMemory:
 
         def _reward_calculator(row):
             start = row.name
-            end = self._data.index[self._data.episode == row.episode].max()
+            end = self._data.index[self._data.episode_id == row.episode_id].max()
 
             return np.sum(self._data.r_t.loc[start:end + 1] * (gamma ** np.arange(end - start + 1)))
 
