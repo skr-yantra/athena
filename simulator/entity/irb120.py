@@ -4,6 +4,7 @@ import numpy as np
 from ..data import abb_irb120
 from .base import Entity
 from ..sensors.camera import Camera
+from ..interrupts import NumericStateInterrupt
 
 REVOLUTE_JOINT_INDICES = (1, 2, 3, 4, 5, 6)
 GRIPPER_INDEX = 7
@@ -60,7 +61,7 @@ class IRB120(Entity):
             orientation
         )[:-2]
 
-        self.set_revolute_joint_state(joint_states)
+        return self.set_revolute_joint_state(joint_states)
 
     def move_gripper_pose(self, dposition, dorientation):
         current_position, current_orientation = self.gripper_pose
@@ -87,11 +88,19 @@ class IRB120(Entity):
             joint_states
         )
 
+        return self._make_revolute_joint_interrupt(joint_states)
+
+    def set_gripper_finger(self, open):
+        if open:
+            return self.open_gripper()
+        else:
+            return self.close_gripper()
+
     def open_gripper(self):
-        self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 1].ravel())
+        return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 1].ravel())
 
     def close_gripper(self):
-        self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel())
+        return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel())
 
     def set_finger_joint_state(self, joint_states):
         assert len(joint_states) == len(GRIPPER_FINGER_INDICES)
@@ -103,6 +112,18 @@ class IRB120(Entity):
             joint_states,
             forces=(self._max_finger_force,) * 2
         )
+
+        return self._make_finger_joint_interrupt(joint_states)
+
+    def _make_revolute_joint_interrupt(self, target_state):
+        assert len(target_state) == len(REVOLUTE_JOINT_INDICES)
+        interrupt = NumericStateInterrupt(target_state, lambda: self.revolute_joint_state)
+        return interrupt
+
+    def _make_finger_joint_interrupt(self, target_state):
+        assert len(target_state) == len(GRIPPER_FINGER_INDICES)
+        interrupt = NumericStateInterrupt(target_state, lambda: self.finger_joint_state)
+        return interrupt
 
     def capture_gripper_camera(self):
         return self._gripper_cam.state
