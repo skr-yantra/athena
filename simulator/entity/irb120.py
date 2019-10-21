@@ -51,7 +51,7 @@ class IRB120(Entity):
     @property
     def gripper_pose(self):
         gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
-        return gripper_state[0], gripper_state[1]
+        return np.array(gripper_state[0]), np.array(gripper_state[1])
 
     def set_gripper_pose(self, position, orientation):
         joint_states = pb.calculateInverseKinematics(
