@@ -5,7 +5,7 @@ from ..entity.ground import Ground
 from ..entity.irb120 import IRB120
 from ..entity.table import Table
 from ..entity.tray import Tray
-from ..interrupts import compose_interrupts
+from .. import interrupts
 
 
 class TableClearingEnvironment(Environment):
@@ -27,4 +27,4 @@ class TableClearingEnvironment(Environment):
         pose_interrupt = self._robot.move_gripper_pose(dposition, self._pb_client.getQuaternionFromEuler(dorientation))
         gripper_interrupt = self._robot.set_gripper_finger(gripper_opened)
 
-        return compose_interrupts(pose_interrupt, gripper_interrupt)
+        return interrupts.all(pose_interrupt, gripper_interrupt)

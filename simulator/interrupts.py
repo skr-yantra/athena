@@ -28,18 +28,28 @@ class NumericStateInterrupt(Interrupt):
 
 class ComposeInterrupts(Interrupt):
 
-    def __init__(self, interrupts, wait_for_all=True):
+    def __init__(self, interrupts, decision_maker):
         super(ComposeInterrupts, self).__init__()
         self._interrupts = interrupts
         self._interrupted = []
-        self._wait_for_all = wait_for_all
+        self._decision_maker = decision_maker
+
+    @property
+    def interrupts(self):
+        return self._interrupts
 
     def tick(self):
         self._interrupted = [i for i in self._interrupts if i.tick()]
-
-        count = len(self._interrupts) if self._wait_for_all else 1
-        return len(self._interrupted) >= count
+        return self._decision_maker(self, self._interrupted)
 
 
-def compose_interrupts(*interrupts):
-    return ComposeInterrupts(interrupts)
+def all(*interrupts):
+    return ComposeInterrupts(interrupts, lambda i, v: len(i.interrupts) == len(v))
+
+
+def any(*interrupts):
+    return ComposeInterrupts(interrupts, lambda _, v: len(v) > 0)
+
+
+def compose(*interrupts, decision_maker):
+    return ComposeInterrupts(interrupts, decision_maker)
