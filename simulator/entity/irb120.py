@@ -117,12 +117,12 @@ class IRB120(Entity):
 
     def _make_revolute_joint_interrupt(self, target_state):
         assert len(target_state) == len(REVOLUTE_JOINT_INDICES)
-        interrupt = NumericStateInterrupt(target_state, lambda: self.revolute_joint_state)
+        interrupt = NumericStateInterrupt(target_state, lambda: self.revolute_joint_state, tolerance=1e-2)
         return interrupt
 
     def _make_finger_joint_interrupt(self, target_state):
         assert len(target_state) == len(GRIPPER_FINGER_INDICES)
-        interrupt = NumericStateInterrupt(target_state, lambda: self.finger_joint_state)
+        interrupt = NumericStateInterrupt(target_state, lambda: self.finger_joint_state, tolerance=1e-3)
         return interrupt
 
     def capture_gripper_camera(self):
