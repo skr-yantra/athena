@@ -5,6 +5,7 @@ from ..entity.ground import Ground
 from ..entity.irb120 import IRB120
 from ..entity.table import Table
 from ..entity.tray import Tray
+from ..interrupts import compose_interrupts
 
 
 class TableClearingEnvironment(Environment):
@@ -22,14 +23,8 @@ class TableClearingEnvironment(Environment):
         self._src_tray = Tray(self._pb_client, position=(0, -0.5, self._src_table.z_end), scale=0.5)
         self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
 
-        for i in range(5):
-            self._src_tray.add_random_cube()
+    def act(self, dposition, dorientation, gripper_opened):
+        pose_interrupt = self._robot.move_gripper_pose(dposition, self._pb_client.getQuaternionFromEuler(dorientation))
+        gripper_interrupt = self._robot.set_gripper_finger(gripper_opened)
 
-        self._robot.set_gripper_pose((0, -0.7, 0.5), self._pb_client.getQuaternionFromEuler((math.pi/2, math.pi/2, 0)))
-        self._robot.open_gripper()
-
-    def step(self):
-        super(TableClearingEnvironment, self).step()
-
-        if self._step % (240/10) == 0:
-            self._robot.capture_gripper_camera()
+        return compose_interrupts(pose_interrupt, gripper_interrupt)
