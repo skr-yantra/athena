@@ -99,6 +99,7 @@ class Episode(object):
         interrupt = interrupts.any(self._collision_interrupt, interrupt)
         interrupt.spin(self._env)
 
+    def state(self):
         return EpisodeState(self)
 
     @property
