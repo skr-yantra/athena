@@ -17,6 +17,10 @@ class Entity(object):
         self._orientation = orientation
 
     @property
+    def id(self):
+        return self._id
+
+    @property
     def position(self):
         return self._position
 
@@ -75,3 +79,6 @@ class Entity(object):
 
     def transform(self, position, orientation):
         return self._pb_client.multiplyTransforms(self.position, self.orientation, position, orientation)
+
+    def contact_points(self):
+        return self._pb_client.getContactPoints(self._id)
