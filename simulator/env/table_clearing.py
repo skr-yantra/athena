@@ -76,8 +76,6 @@ class Episode(object):
         self._target = self._env.src_tray.add_cube(target_position, target_orientation)
         self._collision_interrupt = CollisionInterrupt(self._env.robot.id, [self._target.id])
 
-        self._episode_state = EpisodeState(self)
-
     def _generate_target_pose(self):
         tray = self._env.src_tray
 
@@ -101,19 +99,7 @@ class Episode(object):
         interrupt = interrupts.any(self._collision_interrupt, interrupt)
         interrupt.spin(self._env)
 
-        return self._calculate_reward()
-
-    def _calculate_reward(self):
-        e_tm1 = self._episode_state
-        e_t = EpisodeState(self)
-
-        # TODO
-        pass
-
-        self._episode_state = e_t
-
-    def is_terminated(self):
-        return self._episode_state.collided
+        return EpisodeState(self)
 
     @property
     def env(self):
@@ -148,13 +134,13 @@ class EpisodeState(object):
             bodyA=self._episode.env.robot.id,
             bodyB=self._episode.target.id,
             linkIndexA=GRIPPER_FINGER_INDICES[0]
-        ) > 0)
+        )) > 0
 
         contact_f2 = len(self._episode.env.pb_client.getContactPoints(
             bodyA=self._episode.env.robot.id,
             bodyB=self._episode.target.id,
             linkIndexA=GRIPPER_FINGER_INDICES[1]
-        ) > 0)
+        )) > 0
 
         target_min_z = min(self._episode.target.z_start, self._episode.target.z_end)
         raised = target_min_z - self._episode.env.src_tray.z_start > 0.01
@@ -185,3 +171,8 @@ class EpisodeState(object):
     @property
     def collided(self):
         return self._collided
+
+    def __str__(self):
+        return '%s: %s' % (self.__class__, {
+            'd_tg': self.d_tg, 'd_gd': self.d_gd, 'grasped': self.grasped, 'collided': self.collided
+        })
