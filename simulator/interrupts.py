@@ -6,11 +6,11 @@ from simulator.utils import unimplemented
 
 class Interrupt(object):
 
-    def tick(self):
+    def should_interrupt(self):
         unimplemented()
 
     def spin(self, env):
-        while not self.tick():
+        while not self.should_interrupt():
             env.step()
 
 
@@ -22,7 +22,7 @@ class NumericStateInterrupt(Interrupt):
         self._target_state = target_state
         self._tolerance = tolerance
 
-    def tick(self):
+    def should_interrupt(self):
         current_state = self._state_reader()
         return np.all(np.abs(current_state - self._target_state) <= self._tolerance)
 
@@ -35,7 +35,7 @@ class CollisionInterrupt(Interrupt):
         self._target = target
         self._exclusions = exclusions
 
-    def tick(self):
+    def should_interrupt(self):
         points = self._pb_client.getContactPoints(self._target)
         collisions = [p[2] for p in points if p[2] not in self._exclusions]
         return len(collisions) > 0
@@ -53,8 +53,8 @@ class ComposeInterrupts(Interrupt):
     def interrupts(self):
         return self._interrupts
 
-    def tick(self):
-        self._interrupted = [i for i in self._interrupts if i.tick()]
+    def should_interrupt(self):
+        self._interrupted = [i for i in self._interrupts if i.should_interrupt()]
         return self._decision_maker(self, self._interrupted)
 
 
