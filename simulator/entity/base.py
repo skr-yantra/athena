@@ -72,3 +72,6 @@ class Entity(object):
     def _axis_span(self, axis):
         start, end = self.bounding_box
         return end[axis] - start[axis]
+
+    def transform(self, position, orientation):
+        return self._pb_client.multiplyTransforms(self.position, self.orientation, position, orientation)
