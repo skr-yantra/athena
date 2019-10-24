@@ -58,7 +58,9 @@ class IRB120(Entity):
             self._id,
             GRIPPER_INDEX,
             position,
-            orientation
+            orientation,
+            maxNumIterations=1000,
+            residualThreshold=0.001,
         )[:-2]
 
         return self.set_revolute_joint_state(joint_states)
