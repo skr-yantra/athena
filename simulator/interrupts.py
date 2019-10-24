@@ -1,3 +1,4 @@
+import pybullet as pb
 import numpy as np
 
 from simulator.utils import unimplemented
@@ -24,6 +25,20 @@ class NumericStateInterrupt(Interrupt):
     def tick(self):
         current_state = self._state_reader()
         return np.all(np.abs(current_state - self._target_state) <= self._tolerance)
+
+
+class CollisionInterrupt(Interrupt):
+
+    def __init__(self, target, exclusions=tuple(), pb_client=pb):
+        super(CollisionInterrupt, self).__init__()
+        self._pb_client = pb_client
+        self._target = target
+        self._exclusions = exclusions
+
+    def tick(self):
+        points = self._pb_client.getContactPoints(self._target)
+        collisions = [p[2] for p in points if p[2] not in self._exclusions]
+        return len(collisions) > 0
 
 
 class ComposeInterrupts(Interrupt):
