@@ -14,6 +14,10 @@ class Tray(Entity):
         table = os.path.join(pybullet_data.getDataPath(), 'tray', 'traybox.urdf')
         super(Tray, self).__init__(table, pb_client, position, orientation, fix_base, scale)
 
+    def add_cube(self, position, orientation):
+        position, orientation = self.transform(position, orientation)
+        return Cube(pb_client=self._pb_client, position=position, orientation=orientation)
+
     def add_random_cube(self):
         bb = self.bounding_box
         pos = np.random.uniform(bb[0] + [0.025, 0.025, self.z_end], bb[1] - [0.025, 0.025, self.z_end+0.1])
