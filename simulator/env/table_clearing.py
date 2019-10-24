@@ -27,8 +27,8 @@ class Environment(base.Environment):
         self._src_tray = Tray(self._pb_client, position=(0, -0.5, self._src_table.z_end), scale=0.5)
         self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
 
-    def new_episode(self):
-        return Episode(self)
+    def new_episode(self, *args, **kwargs):
+        return Episode(self, *args, **kwargs)
 
     @property
     def robot(self):
