@@ -35,3 +35,7 @@ class Environment(object):
     def reset(self):
         self._pb_client.resetSimulation()
         self._setup()
+
+    @property
+    def pb_client(self):
+        return self._pb_client

@@ -5,10 +5,11 @@ import numpy as np
 
 from . import base
 from ..entity.ground import Ground
-from ..entity.irb120 import IRB120
+from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES
 from ..entity.table import Table
 from ..entity.tray import Tray
 from .. import interrupts
+from ..interrupts import CollisionInterrupt
 
 
 class Environment(base.Environment):
@@ -27,7 +28,6 @@ class Environment(base.Environment):
         self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
 
     def new_episode(self):
-        self.reset()
         return Episode(self)
 
     @property
@@ -74,8 +74,9 @@ class Episode(object):
             target_position, target_orientation = self._generate_target_pose()
 
         self._target = self._env.src_tray.add_cube(target_position, target_orientation)
+        self._collision_interrupt = CollisionInterrupt(self._env.robot.id, [self._target.id])
 
-        self._episode_state = EpisodeState(env)
+        self._episode_state = EpisodeState(self)
 
     def _generate_target_pose(self):
         tray = self._env.src_tray
@@ -97,6 +98,7 @@ class Episode(object):
         gripper_interrupt = self._env.robot.set_gripper_finger(open_gripper)
 
         interrupt = interrupts.all(move_interrupt, gripper_interrupt)
+        interrupt = interrupts.any(self._collision_interrupt, interrupt)
         interrupt.spin(self._env)
 
         return self._calculate_reward()
@@ -109,6 +111,9 @@ class Episode(object):
         pass
 
         self._episode_state = e_t
+
+    def is_terminated(self):
+        return self._episode_state.collided
 
     @property
     def env(self):
@@ -124,28 +129,46 @@ class EpisodeState(object):
     def __init__(self, episode: Episode):
         self._episode = episode
 
+        self._gripper_pos, _ = self._episode.env.robot.gripper_pose
+        self._target_pos = self._episode.target.position
+
         self._d_tg = self._calc_d_tg()
         self._d_gd = self._calc_d_gd()
         self._grasped = self._calc_grasped()
         self._collided = self._calc_collided()
 
     def _calc_d_tg(self):
-        target_pos = self._episode.target.position
-        gripper_pos, _ = self._episode.env.robot.gripper_pose
-        return np.linalg.norm(target_pos, gripper_pos)
+        return np.linalg.norm([self._gripper_pos, self._target_pos])
 
     def _calc_d_gd(self):
-        gripper_pos, _ = self._episode.env.robot.gripper_pose
-        target_pos = self._episode.env.dest_tray.position
-        return np.linalg.norm(gripper_pos, target_pos)
+        return np.linalg.norm([self._gripper_pos, self._episode.env.dest_tray.position])
 
     def _calc_grasped(self):
-        # TODO
-        return False
+        contact_f1 = len(self._episode.env.pb_client.getContactPoints(
+            bodyA=self._episode.env.robot.id,
+            bodyB=self._episode.target.id,
+            linkIndexA=GRIPPER_FINGER_INDICES[0]
+        ) > 0)
+
+        contact_f2 = len(self._episode.env.pb_client.getContactPoints(
+            bodyA=self._episode.env.robot.id,
+            bodyB=self._episode.target.id,
+            linkIndexA=GRIPPER_FINGER_INDICES[1]
+        ) > 0)
+
+        target_min_z = min(self._episode.target.z_start, self._episode.target.z_end)
+        raised = target_min_z - self._episode.env.src_tray.z_start > 0.01
+
+        other_contacts = len([i for i in self._episode.env.pb_client.getContactPoints(
+            bodyA=self._episode.target.id) if i[2] != self._episode.env.robot.id]) > 0
+
+        return contact_f1 and contact_f2 and raised and not other_contacts
 
     def _calc_collided(self):
-        # TODO
-        return False
+        points = self._episode.env.robot.contact_points()
+        exceptions = [self._episode.target.id]
+        collisions = [p[2] for p in points if p[2] not in exceptions]
+        return len(collisions) > 0
 
     @property
     def d_tg(self):
