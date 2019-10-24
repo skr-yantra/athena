@@ -123,6 +123,8 @@ class EpisodeState(object):
         self._grasped = self._calc_grasped()
         self._collided = self._calc_collided()
 
+        self._gripper_cam = self._episode.env.robot.capture_gripper_camera()
+
     def _calc_d_tg(self):
         return np.linalg.norm([self._gripper_pos, self._target_pos])
 
@@ -171,6 +173,10 @@ class EpisodeState(object):
     @property
     def collided(self):
         return self._collided
+
+    @property
+    def gripper_camera(self):
+        return self._gripper_cam
 
     def __str__(self):
         return '%s: %s' % (self.__class__, {
