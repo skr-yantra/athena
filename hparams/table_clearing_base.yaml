@@ -2,7 +2,6 @@
 
 reward:
   reaching: 1.0
-  reached: 10.0
   grasped: 20.0
   delivering: 1.0
   delivered: 100.0
