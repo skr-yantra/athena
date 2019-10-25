@@ -68,17 +68,14 @@ class IRB120(Entity):
     def move_gripper_pose(self, dposition, dorientation):
         current_position, current_orientation = self.gripper_pose
 
-        _, orientation = self._pb_client.multiplyTransforms(
-            (0, 0, 0),
+        position, orientation = self._pb_client.multiplyTransforms(
+            current_position,
             current_orientation,
-            (0, 0, 0),
+            dposition,
             dorientation
         )
 
-        return self.set_gripper_pose(
-            current_position + dposition,
-            orientation
-        )
+        return self.set_gripper_pose(position, orientation)
 
     def set_revolute_joint_state(self, joint_states):
         assert len(REVOLUTE_JOINT_INDICES) == len(joint_states)
