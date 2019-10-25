@@ -5,7 +5,7 @@ import numpy as np
 
 from . import base
 from ..entity.ground import Ground
-from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES
+from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES, REVOLUTE_JOINT_INDICES
 from ..entity.table import Table
 from ..entity.tray import Tray
 from .. import interrupts
@@ -13,6 +13,10 @@ from ..interrupts import CollisionInterrupt
 
 
 class Environment(base.Environment):
+
+    def __init__(self, *args, debug=False, **kwargs):
+        super(Environment, self).__init__(*args, **kwargs)
+        self._debug = debug
 
     def _setup(self):
         super(Environment, self)._setup()
@@ -26,6 +30,19 @@ class Environment(base.Environment):
 
         self._src_tray = Tray(self._pb_client, position=(0, -0.5, self._src_table.z_end), scale=0.5)
         self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
+
+    def step(self):
+        super(Environment, self).step()
+
+        if self._debug:
+
+            self._pb_client.addUserDebugLine(
+                self.robot.gripper_pose[0],
+                self.robot.gripper_pose[0] + 0.01,
+                lineColorRGB=(1, 0, 0),
+                lineWidth=3,
+                lifeTime=10.
+            )
 
     def new_episode(self, *args, **kwargs):
         return Episode(self, *args, **kwargs)
