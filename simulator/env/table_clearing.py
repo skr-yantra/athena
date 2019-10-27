@@ -10,7 +10,7 @@ from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES, GRIPPER_INDEX
 from ..entity.table import Table
 from ..entity.tray import Tray
 from .. import interrupts
-from ..interrupts import CollisionInterrupt
+from ..interrupts import CollisionInterrupt, TimeoutInterrupt
 
 
 class Environment(base.Environment):
@@ -134,14 +134,15 @@ class Episode(object):
 
         return position, pb.getQuaternionFromEuler(orientation)
 
-    def act(self, action: Action):
+    def act(self, action: Action, timeout=5.):
         dpos, dori, open_gripper = action.dposition, action.dorientation, action.open_gripper
 
         move_interrupt = self._env.robot.move_gripper_pose(dpos, pb.getQuaternionFromEuler(dori))
         gripper_interrupt = self._env.robot.set_gripper_finger(open_gripper)
+        timeout_interrupt = TimeoutInterrupt(self.env, timeout)
 
         interrupt = interrupts.all(move_interrupt, gripper_interrupt)
-        interrupt = interrupts.any(self._collision_interrupt, interrupt)
+        interrupt = interrupts.any(self._collision_interrupt, timeout_interrupt, interrupt)
         interrupt.spin(self._env)
 
     def state(self):

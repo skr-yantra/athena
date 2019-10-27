@@ -2,6 +2,7 @@ import pybullet as pb
 import numpy as np
 
 from simulator.utils import unimplemented
+from simulator.env import base
 
 
 class Interrupt(object):
@@ -12,6 +13,18 @@ class Interrupt(object):
     def spin(self, env):
         while not self.should_interrupt():
             env.step()
+
+
+class TimeoutInterrupt(Interrupt):
+
+    def __init__(self, env: base.Environment, timeout: float):
+        super(TimeoutInterrupt, self).__init__()
+        self._start = env.time
+        self._timeout = timeout * 1e9
+        self._env = env
+
+    def should_interrupt(self):
+        return (self._env.time - self._start) > self._timeout
 
 
 class NumericStateInterrupt(Interrupt):
