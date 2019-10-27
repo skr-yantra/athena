@@ -1,7 +1,17 @@
+import math
+
 import numpy as np
 
-from simulator.env.table_clearing import EpisodeState
+from simulator.env.table_clearing import EpisodeState, Action
 from hparams import read_params
+
+
+def random_action():
+    dpos = np.random.uniform(-0.01, 0.01, 3)
+    dori = np.random.uniform(-3, 3) * math.pi/180
+    open = np.random.uniform(0, 1) > 0.5
+
+    return Action(dpos, (dori, 0, 0), open)
 
 
 class RewardCalculator(object):
