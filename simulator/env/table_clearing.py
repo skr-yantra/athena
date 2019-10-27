@@ -1,4 +1,5 @@
 import math
+import uuid
 
 import pybullet as pb
 import numpy as np
@@ -110,6 +111,7 @@ class Episode(object):
     _env: Environment
 
     def __init__(self, env, target_position=None, target_orientation=None):
+        self._id = uuid.uuid4()
         self._env = env
         self._start_time = self._env.time
 
@@ -144,6 +146,10 @@ class Episode(object):
 
     def state(self):
         return EpisodeState(self)
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def env(self):
