@@ -18,7 +18,10 @@ FINGER_JOINT_RANGE = np.array([
 
 class IRB120(Entity):
 
-    def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fixed=True, scale=1., max_finger_force=200.):
+    def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
+                 fixed=True, scale=1., max_finger_force=200., debug=False):
+        self._debug = debug
+
         urdf = abb_irb120()
         super(IRB120, self).__init__(urdf, pb_client, position, orientation, fixed, scale)
 
@@ -30,7 +33,7 @@ class IRB120(Entity):
             near_plane=0.001,
             far_plane=1.,
             view_calculator=self._gripper_cam_view_calculator,
-            debug=False
+            debug=debug
         )
 
     @property

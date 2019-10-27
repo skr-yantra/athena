@@ -24,7 +24,7 @@ class Environment(base.Environment):
         self._pb_client.setGravity(0, 0, -9.81)
 
         self._ground = Ground(self._pb_client)
-        self._robot = IRB120(self._pb_client)
+        self._robot = IRB120(self._pb_client, debug=self._debug)
         self._src_table = Table(self._pb_client, position=(0, -0.5, 0), scale=0.5)
         self._dest_table = Table(self._pb_client, position=(0, 0.5, 0), scale=0.5)
 
