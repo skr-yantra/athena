@@ -13,6 +13,7 @@ class Environment(object):
         self._realtime = realtime
 
         self._setup()
+        self._timer = 0.0
 
     def spin(self):
         while True:
@@ -20,6 +21,7 @@ class Environment(object):
 
     def step(self):
         self._pb_client.stepSimulation()
+        self._timer += self._step_size
         current = time.time_ns()
         elapsed = current - self._last_step_time
         to_sleep = max(0., self._step_size - elapsed)
@@ -39,3 +41,7 @@ class Environment(object):
     @property
     def pb_client(self):
         return self._pb_client
+
+    @property
+    def time(self):
+        return self._timer

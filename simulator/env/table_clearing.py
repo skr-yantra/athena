@@ -111,6 +111,7 @@ class Episode(object):
 
     def __init__(self, env, target_position=None, target_orientation=None):
         self._env = env
+        self._start_time = self._env.time
 
         if target_position is None or target_orientation is None:
             target_position, target_orientation = self._generate_target_pose()
@@ -167,6 +168,7 @@ class EpisodeState(object):
         self._collided = self._calc_collided()
 
         self._gripper_cam = self._episode.env.robot.capture_gripper_camera()
+        self._time = episode.env.time
 
     def _calc_d_tg(self):
         return np.linalg.norm([self._gripper_pos, self._target_pos])
@@ -220,6 +222,10 @@ class EpisodeState(object):
     @property
     def gripper_camera(self):
         return self._gripper_cam
+
+    @property
+    def time(self):
+        return self._time
 
     def __str__(self):
         return '%s: %s' % (self.__class__, {
