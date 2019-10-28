@@ -86,7 +86,7 @@ class IRB120(Entity):
             GRIPPER_INDEX,
             position,
             orientation,
-            maxNumIterations=100000,
+            maxNumIterations=10000,
             residualThreshold=0.00001,
             jointDamping=(0.01, ) * len(MOVABLE_JOINT_INDICES),
             solver=self._pb_client.IK_DLS
