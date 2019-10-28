@@ -1,3 +1,6 @@
+import logging
+from functools import lru_cache
+
 import pybullet as pb
 import numpy as np
 
@@ -6,10 +9,10 @@ from .base import Entity
 from ..sensors.camera import Camera
 from ..interrupts import NumericStateInterrupt
 
-REVOLUTE_JOINT_INDICES = (1, 2, 3, 4, 5, 6)
+REVOLUTE_JOINT_INDICES = np.array((1, 2, 3, 4, 5, 6))
 GRIPPER_INDEX = 7
-GRIPPER_FINGER_INDICES = (8, 9)
-MOVABLE_JOINT_INDICES = REVOLUTE_JOINT_INDICES + GRIPPER_FINGER_INDICES
+GRIPPER_FINGER_INDICES = np.array((8, 9))
+MOVABLE_JOINT_INDICES = np.hstack([REVOLUTE_JOINT_INDICES, GRIPPER_FINGER_INDICES])
 FINGER_JOINT_RANGE = np.array([
     [0., 0.012],
     [0, 0.012],
@@ -57,6 +60,26 @@ class IRB120(Entity):
         gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
         return np.array(gripper_state[0]), np.array(gripper_state[1])
 
+    @lru_cache()
+    def _joint_range(self):
+        num_joints = self._pb_client.getNumJoints(self.id)
+        lower_limits = [self._pb_client.getJointInfo(self.id, i)[8] for i in range(num_joints)]
+        upper_limits = [self._pb_client.getJointInfo(self.id, i)[9] for i in range(num_joints)]
+
+        return np.array(lower_limits), np.array(upper_limits)
+
+    @property
+    @lru_cache()
+    def revolute_joint_range(self):
+        ll, ul = self._joint_range()
+        return ll[REVOLUTE_JOINT_INDICES], ul[REVOLUTE_JOINT_INDICES]
+
+    @property
+    @lru_cache()
+    def finger_joint_range(self):
+        ll, ul = self._joint_range()
+        return ll[GRIPPER_FINGER_INDICES], ul[GRIPPER_FINGER_INDICES]
+
     def set_gripper_pose(self, position, orientation):
         joint_states = pb.calculateInverseKinematics(
             self._id,
@@ -86,14 +109,21 @@ class IRB120(Entity):
     def set_revolute_joint_state(self, joint_states):
         assert len(REVOLUTE_JOINT_INDICES) == len(joint_states)
 
+        ll, ul = self.revolute_joint_range
+        limit_joint_states = np.maximum(np.minimum(joint_states, ul), ll)
+
+        if np.any(joint_states != limit_joint_states):
+            logging.warning('Clipped joint inside range \njoint: %s \nll: %s \nul: %s \nresult:%s' %
+                            (joint_states, ll, ul, limit_joint_states))
+
         self._pb_client.setJointMotorControlArray(
             self._id,
             REVOLUTE_JOINT_INDICES,
             pb.POSITION_CONTROL,
-            joint_states
+            limit_joint_states
         )
 
-        return self._make_revolute_joint_interrupt(joint_states)
+        return self._make_revolute_joint_interrupt(limit_joint_states)
 
     def set_gripper_finger(self, open):
         if open:
