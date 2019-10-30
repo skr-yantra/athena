@@ -1,3 +1,5 @@
+import math
+
 import pybullet as pb
 import numpy as np
 import ray
@@ -25,6 +27,14 @@ class GymEnvironment(Env):
         self._setup_new_episode()
 
     def _setup_new_episode(self):
+        self._env.reset()
+
+        gripper_position = np.random.uniform((-0.25, -0.2, 0.55), (0.25, -0.6, 1.))
+
+        self._env.robot.set_gripper_finger(True)
+        self._env.robot.set_gripper_pose(
+            gripper_position, pb.getQuaternionFromEuler((math.pi / 2, math.pi / 2, 0))).spin(self._env)
+
         self._episode = self._env.new_episode()
         self._reward_calc = RewardCalculator(self._episode.state())
 
