@@ -1,5 +1,6 @@
 import math
 
+import click
 import pybullet as pb
 import numpy as np
 import ray
@@ -79,15 +80,13 @@ class GymEnvironment(Env):
         raise Exception('Render not supported. Use render in env_config instead')
 
 
-def main():
+def train(num_gpus=0, num_workers=1, render=False):
     ray.init()
 
     config = DEFAULT_CONFIG.copy()
-    config["num_gpus"] = 0
-    config["num_workers"] = 1
-    config["eager"] = True
-    config["eager_tracing"] = True
-    config["env_config"] = {"render": True}
+    config["num_gpus"] = num_gpus
+    config["num_workers"] = num_workers
+    config["env_config"] = {"render": render}
 
     trainer = PPOTrainer(config=config, env=GymEnvironment)
 
@@ -95,5 +94,24 @@ def main():
         print(pretty_print(trainer.train()))
 
 
+def test_environment():
+    pass
+
+
+@click.group()
+def cli():
+    pass
+
+
+@cli.command('train')
+def _cli_train():
+    train()
+
+
+@cli.command('test_environment')
+def _cli_test_environment():
+    test_environment()
+
+
 if __name__ == '__main__':
-    main()
+    cli()
