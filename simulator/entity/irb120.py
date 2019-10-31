@@ -131,14 +131,16 @@ class IRB120(Entity):
         limit_joint_states = np.maximum(np.minimum(joint_states, ul), ll)
 
         if np.any(joint_states != limit_joint_states):
-            logging.warning('Clipped joint inside range \njoint: %s \nll: %s \nul: %s \nresult:%s' %
-                            (joint_states, ll, ul, limit_joint_states))
+            logging.warning('Out of bound joint states')
+            return
 
         self._pb_client.setJointMotorControlArray(
             self._id,
             REVOLUTE_JOINT_INDICES,
             pb.POSITION_CONTROL,
-            limit_joint_states
+            limit_joint_states,
+            positionGains=(0.3,) * len(joint_states),
+            velocityGains=(1,) * len(joint_states)
         )
 
         return self._make_revolute_joint_interrupt(limit_joint_states)
@@ -170,7 +172,7 @@ class IRB120(Entity):
 
     def _make_revolute_joint_interrupt(self, target_state):
         assert len(target_state) == len(REVOLUTE_JOINT_INDICES)
-        interrupt = NumericStateInterrupt(target_state, lambda: self.revolute_joint_state, tolerance=1e-2)
+        interrupt = NumericStateInterrupt(target_state, lambda: self.revolute_joint_state, tolerance=1e-4)
         return interrupt
 
     def _make_finger_joint_interrupt(self, target_state):
