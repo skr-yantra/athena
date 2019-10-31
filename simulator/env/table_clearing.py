@@ -6,7 +6,7 @@ import numpy as np
 
 from . import base
 from ..entity.ground import Ground
-from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES, GRIPPER_INDEX
+from ..entity.irb120 import IRB120, GRIPPER_FINGER_INDICES, GRIPPER_INDEX, GRIPPER_ORIGIN_OFFSET
 from ..entity.table import Table
 from ..entity.tray import Tray
 from .. import interrupts
@@ -34,24 +34,24 @@ class Environment(base.Environment):
 
         if self._debug:
             self._pb_client.addUserDebugLine(
-                (0, 0, 0),
-                (0.1, 0, 0),
+                (GRIPPER_ORIGIN_OFFSET, 0, 0),
+                (GRIPPER_ORIGIN_OFFSET + 0.1, 0, 0),
                 (1, 0, 0),
                 parentObjectUniqueId=self.robot.id,
                 parentLinkIndex=GRIPPER_INDEX
             )
 
             self._pb_client.addUserDebugLine(
-                (0, 0, 0),
-                (0, 0.1, 0),
+                (GRIPPER_ORIGIN_OFFSET, 0, 0),
+                (GRIPPER_ORIGIN_OFFSET, 0.1, 0),
                 (0, 1, 0),
                 parentObjectUniqueId=self.robot.id,
                 parentLinkIndex=GRIPPER_INDEX
             )
 
             self._pb_client.addUserDebugLine(
-                (0, 0, 0),
-                (0, 0, 0.1),
+                (GRIPPER_ORIGIN_OFFSET, 0, 0),
+                (GRIPPER_ORIGIN_OFFSET, 0, 0.1),
                 (0, 0, 1),
                 parentObjectUniqueId=self.robot.id,
                 parentLinkIndex=GRIPPER_INDEX
