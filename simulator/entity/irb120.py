@@ -4,6 +4,7 @@ from functools import lru_cache
 import pybullet as pb
 import numpy as np
 
+from .. import interrupts
 from ..data import abb_irb120
 from .base import Entity
 from ..sensors.camera import Camera
@@ -24,13 +25,14 @@ GRIPPER_ORIGIN_OFFSET = 0.057
 class IRB120(Entity):
 
     def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
-                 fixed=True, scale=1., max_finger_force=200., debug=False):
+                 fixed=True, scale=1., max_finger_force=250., debug=False, gravity=9.81):
         self._debug = debug
 
         urdf = abb_irb120()
         super(IRB120, self).__init__(urdf, pb_client, position, orientation, fixed, scale)
 
         self._max_finger_force = max_finger_force
+        self._gravity = gravity
 
         self._gripper_cam = Camera(
             self._pb_client,
@@ -41,6 +43,11 @@ class IRB120(Entity):
             view_calculator=self._gripper_cam_view_calculator,
             debug=debug
         )
+
+        self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[0])
+        self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[1])
+
+        self._grasp_interrupt = NumericStateInterrupt(0.025, lambda: self._grasp_force_state)
 
     @property
     def revolute_joint_state(self):
@@ -155,7 +162,7 @@ class IRB120(Entity):
         return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 1].ravel())
 
     def close_gripper(self):
-        return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel())
+        return interrupts.any(self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel()), self._grasp_interrupt)
 
     def set_finger_joint_state(self, joint_states):
         assert len(joint_states) == len(GRIPPER_FINGER_INDICES)
@@ -179,6 +186,13 @@ class IRB120(Entity):
         assert len(target_state) == len(GRIPPER_FINGER_INDICES)
         interrupt = NumericStateInterrupt(target_state, lambda: self.finger_joint_state, tolerance=1e-3)
         return interrupt
+
+    @property
+    def _grasp_force_state(self):
+        fx, fy, fz, _, _, _ = self._pb_client.getJointState(self.id, GRIPPER_FINGER_INDICES[1])[2]
+        diff = np.abs(np.sqrt(np.sum(np.array([fx, fy, fz])) ** 2) - self._gravity)
+
+        return diff
 
     def capture_gripper_camera(self):
         return self._gripper_cam.state
