@@ -88,22 +88,60 @@ class Environment(base.Environment):
 
 class Action(object):
 
-    def __init__(self, dpos, dori, open_gripper):
-        self._dpos = dpos
-        self._dori = dori
+    def __init__(self, dx=0., dy=0., dz=0., dyaw=0., dpitch=0., droll=0., open_gripper=True,
+                 x=None, y=None, z=None, yaw=None, pitch=None, roll=None):
+        self._dx = dx
+        self._dy = dy
+        self._dz = dz
+
+        self._dyaw = dyaw
+        self._dpitch = dpitch
+        self._droll = droll
+
         self._open_gripper = open_gripper
 
-    @property
-    def dposition(self):
-        return self._dpos
+        self._x = x
+        self._y = y
+        self._z = z
 
-    @property
-    def dorientation(self):
-        return self._dori
+        self._yaw = yaw
+        self._pitch = pitch
+        self._roll = roll
 
-    @property
-    def open_gripper(self):
-        return self._open_gripper
+    def apply(self, env: Environment):
+        current_position, current_orientation = env.robot.gripper_pose
+
+        position, orientation = env.pb_client.multiplyTransforms(
+            current_position,
+            current_orientation,
+            (self._dx, self._dy, self._dz),
+            env.pb_client.getQuaternionFromEuler((self._dyaw, self._dpitch, self._droll))
+        )
+
+        if self._x is not None:
+            position[0] = self._x
+
+        if self._y is not None:
+            position[1] = self._y
+
+        if self._z is not None:
+            position[3] = self._z
+
+        orientation = np.array(env.pb_client.getEulerFromQuaternion(orientation))
+
+        if self._yaw is not None:
+            orientation[0] = self._yaw
+
+        if self._pitch is not None:
+            orientation[1] = self._pitch
+
+        if self._roll is not None:
+            orientation[2] = self._roll
+
+        move_interrupt = env.robot.set_gripper_pose(position, env.pb_client.getQuaternionFromEuler(orientation))
+        finger_interrupt = env.robot.set_gripper_finger(self._open_gripper)
+
+        return interrupts.all(move_interrupt, finger_interrupt)
 
 
 class Episode(object):
@@ -135,14 +173,8 @@ class Episode(object):
         return position, pb.getQuaternionFromEuler(orientation)
 
     def act(self, action: Action, timeout=5.):
-        dpos, dori, open_gripper = action.dposition, action.dorientation, action.open_gripper
-
-        move_interrupt = self._env.robot.move_gripper_pose(dpos, pb.getQuaternionFromEuler(dori))
-        gripper_interrupt = self._env.robot.set_gripper_finger(open_gripper)
-        timeout_interrupt = TimeoutInterrupt(self.env, timeout)
-
-        interrupt = interrupts.all(move_interrupt, gripper_interrupt)
-        interrupt = interrupts.any(self._collision_interrupt, timeout_interrupt, interrupt)
+        interrupt = action.apply(self._env)
+        interrupt = interrupts.any(self._collision_interrupt, TimeoutInterrupt(self.env, timeout), interrupt)
         interrupt.spin(self._env)
 
     def state(self):

@@ -39,10 +39,13 @@ class GymEnvironment(Env):
         self._reward_calc = RewardCalculator(self._episode.state())
 
     def step(self, action):
-        position_scaled = action[:3] * 0.01
-        orientation_scaled = action[3] * math.pi / 180.0
+        action[:3] = action[:3] * 0.01
+        action[3] = action[3] * math.pi / 180.0
 
-        self._episode.act(Action(dpos=position_scaled, dori=(orientation_scaled, 0, 0), open_gripper=action[4] > 0))
+        self._episode.act(Action(
+            dx=action[0], dy=action[1], dz=action[2],
+            droll=action[3], pitch=math.pi/2, yaw=math.pi/2,
+            open_gripper=action[4] > 0))
 
         state = self._episode.state()
         reward = self._reward_calc.update(state)
