@@ -3,12 +3,9 @@ import math
 import click
 import pybullet as pb
 import numpy as np
-import ray
 
 from gym import Env
 from gym.spaces import Box
-from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG
-from ray.tune.logger import pretty_print
 
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 from training.table_clearing import RewardCalculator
@@ -83,6 +80,10 @@ class GymEnvironment(Env):
 
 
 def train(num_gpus=0, num_workers=1, render=False):
+    import ray
+    from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG
+    from ray.tune.logger import pretty_print
+
     ray.init()
 
     config = DEFAULT_CONFIG.copy()
