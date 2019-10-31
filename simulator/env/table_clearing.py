@@ -192,6 +192,9 @@ class Episode(object):
     def target(self):
         return self._target
 
+    def cleanup(self):
+        return self._target.remove()
+
 
 class EpisodeState(object):
 

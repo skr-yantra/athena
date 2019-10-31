@@ -82,3 +82,6 @@ class Entity(object):
 
     def contact_points(self):
         return self._pb_client.getContactPoints(self._id)
+
+    def remove(self):
+        self._pb_client.removeBody(self._id)

@@ -24,10 +24,13 @@ class GymEnvironment(Env):
         self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)
 
         self._env = TableClearingEnv(realtime=False, debug=False)
+        self._episode = None
+
         self._setup_new_episode()
 
     def _setup_new_episode(self):
-        self._env.reset()
+        if self._episode is not None:
+            self._episode.cleanup()
 
         gripper_position = np.random.uniform((-0.25, -0.2, 0.55), (0.25, -0.6, 1.))
 
