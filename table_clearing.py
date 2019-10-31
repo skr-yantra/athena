@@ -27,7 +27,9 @@ class GymEnvironment(Env):
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
         self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)
 
-        self._env = TableClearingEnv(realtime=False, debug=False)
+        realtime = 'realtime' in config and config['realtime']
+        debug = 'debug' in config and config['debug']
+        self._env = TableClearingEnv(realtime=realtime, debug=debug)
         self._episode = None
 
         self._setup_new_episode()
@@ -95,7 +97,12 @@ def train(num_gpus=0, num_workers=1, render=False):
 
 
 def test_environment():
-    pass
+    env = GymEnvironment(
+        config={'render': True, 'realtime': True, 'debug': True},
+        target_pose=((0, 0, 0.1), (0, 0, 0, 1)),
+        gripper_pose=((0.2, -0.5, 0.7), pb.getQuaternionFromEuler((math.pi / 2., math.pi / 2., math.pi / 3.)))
+    )
+    env._env.spin()
 
 
 @click.group()
