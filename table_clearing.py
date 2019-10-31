@@ -15,10 +15,13 @@ from training.table_clearing import RewardCalculator
 
 class GymEnvironment(Env):
 
-    def __init__(self, config):
+    def __init__(self, config, target_pose=None, gripper_pose=None):
         super(GymEnvironment, self).__init__()
 
         pb.connect(pb.GUI if 'render' in config and config['render'] else pb.DIRECT)
+
+        self._target_pose = target_pose
+        self._gripper_pose = gripper_pose
 
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
         self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)
@@ -33,12 +36,19 @@ class GymEnvironment(Env):
             self._episode.cleanup()
 
         gripper_position = np.random.uniform((-0.25, -0.2, 0.55), (0.25, -0.6, 1.))
+        gripper_orientation = pb.getQuaternionFromEuler((math.pi/2, math.pi/2, np.random.uniform(0, 2.0 * math.pi)))
+
+        if self._gripper_pose is not None:
+            gripper_position, gripper_orientation = self._gripper_pose
+
+        target_position, target_orientation = None, None
+        if self._target_pose is not None:
+            target_position, target_orientation = self._target_pose
 
         self._env.robot.set_gripper_finger(True)
-        self._env.robot.set_gripper_pose(
-            gripper_position, pb.getQuaternionFromEuler((math.pi / 2, math.pi / 2, 0))).spin(self._env)
+        self._env.robot.set_gripper_pose(gripper_position, gripper_orientation).spin(self._env)
 
-        self._episode = self._env.new_episode()
+        self._episode = self._env.new_episode(target_position=target_position, target_orientation=target_orientation)
         self._reward_calc = RewardCalculator(self._episode.state())
 
     def step(self, action):
