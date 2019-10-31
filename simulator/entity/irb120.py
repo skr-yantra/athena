@@ -18,6 +18,8 @@ FINGER_JOINT_RANGE = np.array([
     [0, 0.012],
 ])
 
+GRIPPER_ORIGIN_OFFSET = 0.057
+
 
 class IRB120(Entity):
 
@@ -50,7 +52,7 @@ class IRB120(Entity):
 
     @property
     def gripper_pose_euler(self):
-        gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
+        gripper_state = self.gripper_pose
         px, py, pz = gripper_state[0]
         ax, ay, az = pb.getEulerFromQuaternion(gripper_state[1])
 
@@ -59,7 +61,15 @@ class IRB120(Entity):
     @property
     def gripper_pose(self):
         gripper_state = self._pb_client.getLinkState(self._id, GRIPPER_INDEX)
-        return np.array(gripper_state[0]), np.array(gripper_state[1])
+
+        position, _ = self._pb_client.multiplyTransforms(
+            gripper_state[0],
+            gripper_state[1],
+            (GRIPPER_ORIGIN_OFFSET, 0, 0),
+            (0, 0, 0, 1)
+        )
+
+        return np.array(position), np.array(gripper_state[1])
 
     @lru_cache()
     def _joint_range(self):
@@ -82,6 +92,13 @@ class IRB120(Entity):
         return ll[GRIPPER_FINGER_INDICES], ul[GRIPPER_FINGER_INDICES]
 
     def set_gripper_pose(self, position, orientation):
+        position, _ = self._pb_client.multiplyTransforms(
+            position,
+            orientation,
+            (-GRIPPER_ORIGIN_OFFSET, 0, 0),
+            (0, 0, 0, -1)
+        )
+
         joint_states = pb.calculateInverseKinematics(
             self._id,
             GRIPPER_INDEX,
@@ -170,22 +187,22 @@ class IRB120(Entity):
         eye, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0, 0, 0.05),
-            (1, 0, 0, 0)
+            (0, 0, 0.05-GRIPPER_ORIGIN_OFFSET),
+            (0, 0, 0, 1)
         )
 
         to, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0.1, 0, 0.05),
-            (1, 0, 0, 0)
+            (0.1, 0, 0.05-GRIPPER_ORIGIN_OFFSET),
+            (0, 0, 0, 1)
         )
 
         up, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0, 0, 0.15),
-            (1, 0, 0, 0)
+            (0, 0, 0.15-GRIPPER_ORIGIN_OFFSET),
+            (0, 0, 0, 1)
         )
 
         return eye, to, up
