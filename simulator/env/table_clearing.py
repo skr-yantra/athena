@@ -64,8 +64,8 @@ class Environment(base.Environment):
 
             self._pb_client.addUserDebugLine(
                 self.robot.gripper_pose[0],
-                self.robot.gripper_pose[0] + 0.01,
-                lineColorRGB=(1, 0, 0),
+                self.robot.gripper_pose[0] + 0.002,
+                lineColorRGB=(0, 0, 0),
                 lineWidth=3,
                 lifeTime=10.
             )
