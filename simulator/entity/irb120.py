@@ -1,3 +1,4 @@
+import math
 import logging
 from functools import lru_cache
 
@@ -114,15 +115,21 @@ class IRB120(Entity):
             (0, 0, 0, -1)
         )
 
+        ll, ul = self._joint_range()
+
         joint_states = pb.calculateInverseKinematics(
             self._id,
             GRIPPER_INDEX,
             position,
             orientation,
+            lowerLimits=list(ll[MOVABLE_JOINT_INDICES]),
+            upperLimits=list(ul[MOVABLE_JOINT_INDICES]),
+            jointRanges=(2 * math.pi, ) * len(MOVABLE_JOINT_INDICES),
+            restPoses=(0, ) * len(MOVABLE_JOINT_INDICES),
             maxNumIterations=10000,
             residualThreshold=0.00001,
             jointDamping=(0.01, ) * len(MOVABLE_JOINT_INDICES),
-            solver=self._pb_client.IK_DLS
+            solver=self._pb_client.IK_SDLS,
         )[:-2]
 
         return self.set_revolute_joint_state(joint_states)
