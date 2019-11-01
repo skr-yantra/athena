@@ -9,6 +9,7 @@ from ..data import abb_irb120
 from .base import Entity
 from ..sensors.camera import Camera
 from ..interrupts import NumericStateInterrupt
+from ..filter import MovingAverage
 
 REVOLUTE_JOINT_INDICES = np.array((1, 2, 3, 4, 5, 6))
 GRIPPER_INDEX = 7
@@ -47,7 +48,14 @@ class IRB120(Entity):
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[0])
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[1])
 
-        self._grasp_interrupt = NumericStateInterrupt(0.025, lambda: self._grasp_force_state)
+        self._grasp_interrupt = NumericStateInterrupt(1, lambda: 1 if self._grasp_force_filtered() > 5 else 0)
+        self._grasp_force_filter = MovingAverage(count=480, shape=(1, ))
+
+    def _grasp_force_filtered(self):
+        force = self._grasp_force_state
+        avg,  = self._grasp_force_filter.update(force)
+
+        return avg
 
     @property
     def revolute_joint_state(self):
@@ -158,9 +166,11 @@ class IRB120(Entity):
         else:
             return self.close_gripper()
 
+    @lru_cache()
     def open_gripper(self):
         return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 1].ravel())
 
+    @lru_cache()
     def close_gripper(self):
         return interrupts.any(self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel()), self._grasp_interrupt)
 
