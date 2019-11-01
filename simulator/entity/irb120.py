@@ -126,7 +126,7 @@ class IRB120(Entity):
             upperLimits=list(ul[MOVABLE_JOINT_INDICES]),
             jointRanges=(2 * math.pi, ) * len(MOVABLE_JOINT_INDICES),
             restPoses=(0, ) * len(MOVABLE_JOINT_INDICES),
-            maxNumIterations=10000,
+            maxNumIterations=100,
             residualThreshold=0.00001,
             jointDamping=(0.01, ) * len(MOVABLE_JOINT_INDICES),
             solver=self._pb_client.IK_SDLS,
