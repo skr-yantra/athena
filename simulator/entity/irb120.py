@@ -39,7 +39,7 @@ class IRB120(Entity):
         self._gripper_cam = Camera(
             self._pb_client,
             resolution=(128, 128),
-            fov=90.,
+            fov=60.,
             near_plane=0.001,
             far_plane=2.,
             view_calculator=self._gripper_cam_view_calculator,
