@@ -12,13 +12,13 @@ from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
 class GymEnvironment(Env):
 
-    def __init__(self, config, target_pose=None, gripper_pose=None):
+    def __init__(self, config):
         super(GymEnvironment, self).__init__()
 
         pb.connect(pb.GUI if 'render' in config and config['render'] else pb.DIRECT)
 
-        self._target_pose = target_pose
-        self._gripper_pose = gripper_pose
+        self._target_pose = config['target_pose'] if 'target_pose' in config else None
+        self._gripper_pose = config['gripper_pose'] if 'gripper_pose' in config else None
 
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
         self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)

@@ -3,8 +3,8 @@ import math
 import click
 import pybullet as pb
 import numpy as np
-
-from training.table_clearing import GymEnvironment
+import gym
+import training
 
 
 def train(num_gpus=0, num_workers=1, render=False):
@@ -19,18 +19,22 @@ def train(num_gpus=0, num_workers=1, render=False):
     config["num_workers"] = num_workers
     config["env_config"] = {"render": render}
 
-    trainer = PPOTrainer(config=config, env=GymEnvironment)
+    trainer = PPOTrainer(config=config, env='table-clearing-v0')
 
     while True:
         print(pretty_print(trainer.train()))
 
 
 def test_environment():
-    env = GymEnvironment(
-        config={'render': True, 'realtime': False, 'debug': False},
-        target_pose=((0, 0, 0.1), pb.getQuaternionFromEuler((0, 0, math.pi/4))),
-        gripper_pose=((0.2, -0.4, 0.7), pb.getQuaternionFromEuler((math.pi / 2., math.pi / 2., 0)))
-    )
+    config = {
+        'render': True,
+        'realtime': False,
+        'debug': False,
+        'target_pose': ((0, 0, 0.1), pb.getQuaternionFromEuler((0, 0, math.pi / 4))),
+        'gripper_pose': ((0.2, -0.4, 0.7), pb.getQuaternionFromEuler((math.pi / 2., math.pi / 2., 0)))
+    }
+
+    env = gym.make('table-clearing-v0', config=config)
 
     def act(action, count=1):
         for i in range(count):
