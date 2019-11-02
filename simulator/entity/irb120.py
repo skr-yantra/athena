@@ -186,11 +186,9 @@ class IRB120(Entity):
         else:
             return self.close_gripper()
 
-    @lru_cache()
     def open_gripper(self):
         return self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 1].ravel())
 
-    @lru_cache()
     def close_gripper(self):
         return interrupts.any(self.set_finger_joint_state(FINGER_JOINT_RANGE[:, 0].ravel()), self._grasp_interrupt)
 
