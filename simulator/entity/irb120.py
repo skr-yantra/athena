@@ -135,7 +135,7 @@ class IRB120(Entity):
         )[:-2]
 
         ll, ul = self.revolute_joint_range
-        if (np.any(np.isnan(joint_states))) or np.any((ll > joint_states) | (ul < joint_states)):
+        if np.any(np.isnan(joint_states) | (ll > joint_states) | (ul < joint_states)):
             joint_states = pb.calculateInverseKinematics(
                 **common_params,
                 lowerLimits=list(self._joint_range()[0][MOVABLE_JOINT_INDICES]),
