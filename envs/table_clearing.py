@@ -62,7 +62,7 @@ class GymEnvironment(Env):
 
         state = self._episode.state()
         reward = self._reward_calc.update(state)
-        done = state.collided
+        done = state.done
 
         return GymEnvironment._proc_state(state), reward, done, {}
 
@@ -113,14 +113,12 @@ class RewardCalculator(object):
         if not self._s_tm1.grasped and state.grasped:
             reward += self._params.reward.grasped
 
-        reached_destination = state.d_gd < 0.125
-
         # Dropped target
-        if self._s_tm1.grasped and not state.grasped and not reached_destination:
+        if self._s_tm1.grasped and not state.grasped and not state.reached:
             reward += self._params.reward.dropped
 
         # Reached destination
-        if self._s_tm1.grasped and not state.grasped and reached_destination:
+        if self._s_tm1.grasped and not state.grasped and state.reached:
             reward += self._params.reward.delivered
 
         # Collided

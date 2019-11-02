@@ -211,6 +211,9 @@ class EpisodeState(object):
         self._gripper_cam = self._episode.env.robot.capture_gripper_camera()
         self._time = episode.env.time
 
+        self._reached = self._calc_reached()
+        self._done = self._calc_done()
+
     def _calc_d_tg(self):
         return np.linalg.norm(self._gripper_pos - self._target_pos)
 
@@ -244,6 +247,13 @@ class EpisodeState(object):
         collisions = [p[2] for p in points if p[2] not in exceptions]
         return len(collisions) > 0
 
+    def _calc_reached(self):
+        dest_tray = self._episode.env.dest_tray
+        return self._d_gd < (min(dest_tray.x_span, dest_tray.y_span) / 2.0) - 0.01
+
+    def _calc_done(self):
+        return self._collided or self._reached
+
     @property
     def d_tg(self):
         return self._d_tg
@@ -259,6 +269,14 @@ class EpisodeState(object):
     @property
     def collided(self):
         return self._collided
+
+    @property
+    def reached(self):
+        return self._reached
+
+    @property
+    def done(self):
+        return self._done
 
     @property
     def gripper_camera(self):
