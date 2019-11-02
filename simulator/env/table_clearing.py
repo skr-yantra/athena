@@ -26,11 +26,10 @@ class Environment(base.Environment):
 
         self._ground = Ground(self._pb_client)
         self._robot = IRB120(self._pb_client, debug=self._debug)
-        self._src_table = Table(self._pb_client, position=(0, -0.5, 0), scale=0.5)
-        self._dest_table = Table(self._pb_client, position=(0, 0.5, 0), scale=0.5)
+        self._table = Table(self._pb_client, position=(0, -0.4, 0), scale=0.5)
 
-        self._src_tray = Tray(self._pb_client, position=(0, -0.5, self._src_table.z_end), scale=0.5)
-        self._dest_tray = Tray(self._pb_client, position=(0, 0.5, self._dest_table.z_end), scale=0.5)
+        self._src_tray = Tray(self._pb_client, position=(0.2, -0.4, self._table.z_end), scale=0.5)
+        self._dest_tray = Tray(self._pb_client, position=(-0.2, -0.4, self._table.z_end), scale=0.5)
 
         if self._debug:
             self._pb_client.addUserDebugLine(
