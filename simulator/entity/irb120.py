@@ -24,6 +24,10 @@ FINGER_JOINT_RANGE = np.array([
 GRIPPER_ORIGIN_OFFSET = 0.057
 
 
+def to_deg(ori):
+    return np.array(pb.getEulerFromQuaternion(ori)) * 180. / math.pi
+
+
 class IRB120(Entity):
 
     def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
@@ -112,25 +116,34 @@ class IRB120(Entity):
             position,
             orientation,
             (-GRIPPER_ORIGIN_OFFSET, 0, 0),
-            (0, 0, 0, -1)
+            (0, 0, 0, 1)
         )
 
-        ll, ul = self._joint_range()
+        common_params = dict(
+            bodyUniqueId=self.id,
+            endEffectorLinkIndex=GRIPPER_INDEX,
+            targetPosition=position,
+            targetOrientation=orientation,
+            maxNumIterations=1000,
+            residualThreshold=0.00001,
+            jointDamping=(1e-50,) * len(MOVABLE_JOINT_INDICES),
+        )
 
         joint_states = pb.calculateInverseKinematics(
-            self._id,
-            GRIPPER_INDEX,
-            position,
-            orientation,
-            lowerLimits=list(ll[MOVABLE_JOINT_INDICES]),
-            upperLimits=list(ul[MOVABLE_JOINT_INDICES]),
-            jointRanges=(2 * math.pi, ) * len(MOVABLE_JOINT_INDICES),
-            restPoses=(0, ) * len(MOVABLE_JOINT_INDICES),
-            maxNumIterations=100,
-            residualThreshold=0.00001,
-            jointDamping=(0.01, ) * len(MOVABLE_JOINT_INDICES),
-            solver=self._pb_client.IK_SDLS,
+            **common_params,
+            solver=self._pb_client.IK_DLS
         )[:-2]
+
+        ll, ul = self.revolute_joint_range
+        if (np.any(np.isnan(joint_states))) or np.any((ll > joint_states) | (ul < joint_states)):
+            joint_states = pb.calculateInverseKinematics(
+                **common_params,
+                lowerLimits=list(self._joint_range()[0][MOVABLE_JOINT_INDICES]),
+                upperLimits=list(self._joint_range()[1][MOVABLE_JOINT_INDICES]),
+                jointRanges=(2 * math.pi, ) * len(MOVABLE_JOINT_INDICES),
+                restPoses=(0, ) * len(MOVABLE_JOINT_INDICES),
+                solver=self._pb_client.IK_SDLS,
+            )[:-2]
 
         return self.set_revolute_joint_state(joint_states)
 
