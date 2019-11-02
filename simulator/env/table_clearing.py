@@ -212,10 +212,10 @@ class EpisodeState(object):
         self._time = episode.env.time
 
     def _calc_d_tg(self):
-        return np.linalg.norm([self._gripper_pos, self._target_pos])
+        return np.linalg.norm(self._gripper_pos - self._target_pos)
 
     def _calc_d_gd(self):
-        return np.linalg.norm([self._gripper_pos, self._episode.env.dest_tray.position])
+        return np.linalg.norm(self._gripper_pos - self._episode.env.dest_tray.position)
 
     def _calc_grasped(self):
         contact_f1 = len(self._episode.env.pb_client.getContactPoints(
