@@ -113,7 +113,7 @@ class RewardCalculator(object):
         if not self._s_tm1.grasped and state.grasped:
             reward += self._params.reward.grasped
 
-        reached_destination = state.d_gd < 0.05
+        reached_destination = state.d_gd < 0.125
 
         # Dropped target
         if self._s_tm1.grasped and not state.grasped and not reached_destination:
