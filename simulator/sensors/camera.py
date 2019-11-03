@@ -1,6 +1,7 @@
 import pybullet as pb
 
 from .base import Sensor
+from ..utils import clip_line_end
 
 
 class Camera(Sensor):
@@ -41,14 +42,14 @@ class Camera(Sensor):
         if self._debug:
             self._pb_client.addUserDebugLine(
                 eye,
-                to,
+                clip_line_end(eye, to),
                 (1, 0, 0),
                 lifeTime=1.
             )
 
             self._pb_client.addUserDebugLine(
                 eye,
-                up,
+                clip_line_end(eye, up),
                 (0, 0, 1),
                 lifeTime=1.
             )
