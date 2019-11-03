@@ -66,8 +66,8 @@ def test_pick_and_place_manual():
 
 
 _ENVIRONMENT_REGISTRY = {
-    'table_clearing_v0': test_table_clearing_v0,
-    'pick_and_place_manual': test_pick_and_place_manual
+    'table-clearing-v0': test_table_clearing_v0,
+    'pick-and-place-manual': test_pick_and_place_manual
 }
 
 
