@@ -35,8 +35,7 @@ class IRB120(Entity):
         self._debug = debug
 
         urdf = abb_irb120()
-        super(IRB120, self).__init__(
-            urdf, pb_client, position, orientation, fixed, scale, load_flags=pb.URDF_USE_SELF_COLLISION)
+        super(IRB120, self).__init__(urdf, pb_client, position, orientation, fixed, scale)
 
         self._max_finger_force = max_finger_force
         self._gravity = gravity
