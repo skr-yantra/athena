@@ -203,8 +203,10 @@ class EpisodeState(object):
         self._gripper_pos, _ = self._episode.env.robot.gripper_pose
         self._target_pos = self._episode.target.position
 
-        self._d_tg = self._calc_d_tg()
-        self._d_gd = self._calc_d_gd()
+        self._d_target_gripper = self._calc_d_target_gripper()
+        self._d_gripper_src_tray = self._calc_d_gripper_src_tray()
+        self._d_gripper_dest_tray = self._calc_d_gripper_dest_tray()
+
         self._grasped = self._calc_grasped()
         self._collided = self._calc_collided()
 
@@ -215,10 +217,13 @@ class EpisodeState(object):
         self._reached_dest_tray = self._calc_reached_dest_tray()
         self._done = self._calc_done()
 
-    def _calc_d_tg(self):
+    def _calc_d_target_gripper(self):
         return np.linalg.norm(self._gripper_pos - self._target_pos)
 
-    def _calc_d_gd(self):
+    def _calc_d_gripper_src_tray(self):
+        return np.linalg.norm(np.array(self._gripper_pos) - self._episode.env.src_tray.position)
+
+    def _calc_d_gripper_dest_tray(self):
         return np.linalg.norm(self._gripper_pos - self._episode.env.dest_tray.position)
 
     def _calc_grasped(self):
@@ -250,23 +255,26 @@ class EpisodeState(object):
 
     def _calc_reached_src_tray(self):
         src_tray = self._episode.env.src_tray
-        distance = np.linalg.norm(np.array(src_tray.position) - self._target_pos)
-        return distance < (min(src_tray.x_span, src_tray.y_span) / 2.0) - 0.01
+        return self._d_gripper_src_tray < (min(src_tray.x_span, src_tray.y_span) / 2.0) - 0.01
 
     def _calc_reached_dest_tray(self):
         dest_tray = self._episode.env.dest_tray
-        return self._d_gd < (min(dest_tray.x_span, dest_tray.y_span) / 2.0) - 0.01
+        return self._d_gripper_dest_tray < (min(dest_tray.x_span, dest_tray.y_span) / 2.0) - 0.01
 
     def _calc_done(self):
         return self._collided or self._reached_dest_tray
 
     @property
-    def d_tg(self):
-        return self._d_tg
+    def d_target_gripper(self):
+        return self._d_target_gripper
 
     @property
-    def d_gd(self):
-        return self._d_gd
+    def d_gripper_src_tray(self):
+        return self._d_gripper_src_tray
+
+    @property
+    def d_gripper_dest_tray(self):
+        return self._d_gripper_dest_tray
 
     @property
     def grasped(self):
@@ -298,5 +306,5 @@ class EpisodeState(object):
 
     def __str__(self):
         return '%s: %s' % (self.__class__, {
-            'd_tg': self.d_tg, 'd_gd': self.d_gd, 'grasped': self.grasped, 'collided': self.collided
+            'd_tg': self.d_target_gripper, 'd_gd': self.d_gripper_dest_tray, 'grasped': self.grasped, 'collided': self.collided
         })

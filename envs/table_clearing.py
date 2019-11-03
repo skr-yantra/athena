@@ -95,11 +95,11 @@ class RewardCalculator(object):
 
         # Reaching
         if not state.grasped:
-            reward += self._params.reward.reaching * np.sign(self._s_tm1.d_tg - state.d_tg)
+            reward += self._params.reward.reaching * np.sign(self._s_tm1.d_target_gripper - state.d_target_gripper)
 
         # Delivering
         if state.grasped:
-            reward += self._params.reward.delivering * np.sign(self._s_tm1.d_gd - state.d_gd)
+            reward += self._params.reward.delivering * np.sign(self._s_tm1.d_gripper_dest_tray - state.d_gripper_dest_tray)
 
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:
