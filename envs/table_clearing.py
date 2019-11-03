@@ -79,17 +79,6 @@ class GymEnvironment(Env):
         raise Exception('Render not supported. Use render in env_config instead')
 
 
-def random_action():
-    dpos = np.random.uniform(-0.01, 0.01, 3)
-    dori = np.random.uniform(-10, 10) * math.pi/180.0
-    open = np.random.uniform(0, 1) > 0.5
-
-    return Action(dx=dpos[0], dy=dpos[1], dz=dpos[2],
-                  dyaw=dori, dpitch=0, droll=0,
-                  yaw=math.pi/2, pitch=math.pi/2,
-                  open_gripper=open)
-
-
 class RewardCalculator(object):
 
     _s_tm1: EpisodeState
