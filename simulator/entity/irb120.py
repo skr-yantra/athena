@@ -233,21 +233,21 @@ class IRB120(Entity):
         eye, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0, 0, 0.05-GRIPPER_ORIGIN_OFFSET),
+            (-GRIPPER_ORIGIN_OFFSET, 0, 0.05),
             (0, 0, 0, 1)
         )
 
         to, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0.1, 0, 0.05-GRIPPER_ORIGIN_OFFSET),
+            (0.1-GRIPPER_ORIGIN_OFFSET, 0, 0.05),
             (0, 0, 0, 1)
         )
 
         up, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0, 0, 0.15-GRIPPER_ORIGIN_OFFSET),
+            (-GRIPPER_ORIGIN_OFFSET, 0, 0.15),
             (0, 0, 0, 1)
         )
 
