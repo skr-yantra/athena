@@ -230,24 +230,26 @@ class IRB120(Entity):
     def _gripper_cam_view_calculator(self):
         position, orientation = self.gripper_pose
 
+        offset = np.array([-0.03, 0, 0.01])
+
         eye, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (-GRIPPER_ORIGIN_OFFSET, 0, 0.05),
+            offset,
             (0, 0, 0, 1)
         )
 
         to, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (0.1-GRIPPER_ORIGIN_OFFSET, 0, 0.05),
+            offset + (0.01, 0, 0),
             (0, 0, 0, 1)
         )
 
         up, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            (-GRIPPER_ORIGIN_OFFSET, 0, 0.15),
+            offset + (0, 0, 0.01),
             (0, 0, 0, 1)
         )
 
