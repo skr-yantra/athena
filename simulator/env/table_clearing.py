@@ -211,7 +211,8 @@ class EpisodeState(object):
         self._gripper_cam = self._episode.env.robot.capture_gripper_camera()
         self._time = episode.env.time
 
-        self._reached = self._calc_reached()
+        self._reached_src_tray = self._calc_reached_src_tray()
+        self._reached_dest_tray = self._calc_reached_dest_tray()
         self._done = self._calc_done()
 
     def _calc_d_tg(self):
@@ -247,12 +248,17 @@ class EpisodeState(object):
         collisions = [p[2] for p in points if p[2] not in exceptions]
         return len(collisions) > 0
 
-    def _calc_reached(self):
+    def _calc_reached_src_tray(self):
+        src_tray = self._episode.env.src_tray
+        distance = np.linalg.norm(np.array(src_tray.position) - self._target_pos)
+        return distance < (min(src_tray.x_span, src_tray.y_span) / 2.0) - 0.01
+
+    def _calc_reached_dest_tray(self):
         dest_tray = self._episode.env.dest_tray
         return self._d_gd < (min(dest_tray.x_span, dest_tray.y_span) / 2.0) - 0.01
 
     def _calc_done(self):
-        return self._collided or self._reached
+        return self._collided or self._reached_dest_tray
 
     @property
     def d_tg(self):
@@ -271,8 +277,12 @@ class EpisodeState(object):
         return self._collided
 
     @property
-    def reached_destination(self):
-        return self._reached
+    def reached_src_tray(self):
+        return self._reached_src_tray
+
+    @property
+    def reached_dest_tray(self):
+        return self._reached_dest_tray
 
     @property
     def done(self):
