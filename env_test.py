@@ -11,11 +11,11 @@ import envs
 from simulator.env.irb120 import IRB120
 
 
-def test_table_clearing_v0():
+def test_table_clearing_v0(realtime='0', debug='0'):
     config = {
         'render': True,
-        'realtime': False,
-        'debug': False,
+        'realtime': realtime == '1',
+        'debug': debug == '1',
         'target_pose': ((0, 0, 0.1), pb.getQuaternionFromEuler((0, 0, math.pi / 4))),
         'gripper_pose': ((0.2, -0.4, 0.7), pb.getQuaternionFromEuler((math.pi / 2., math.pi / 2., 0)))
     }
@@ -73,5 +73,6 @@ _ENVIRONMENT_REGISTRY = {
 
 @click.command('env_test')
 @click.argument('name', type=click.Choice(_ENVIRONMENT_REGISTRY.keys(), case_sensitive=False))
-def main(name):
-    _ENVIRONMENT_REGISTRY[name]()
+@click.option('--config', '-c', type=(str, str), multiple=True)
+def main(name, config):
+    _ENVIRONMENT_REGISTRY[name](**dict(config))
