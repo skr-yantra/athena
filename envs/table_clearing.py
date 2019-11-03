@@ -14,21 +14,24 @@ class GymEnvironment(Env):
 
     def __init__(self, config):
         super(GymEnvironment, self).__init__()
+        self._parse_config(**config)
 
-        pb.connect(pb.GUI if 'render' in config and config['render'] else pb.DIRECT)
-
-        self._target_pose = config['target_pose'] if 'target_pose' in config else None
-        self._gripper_pose = config['gripper_pose'] if 'gripper_pose' in config else None
+        pb.connect(pb.GUI if self._render else pb.DIRECT)
 
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
         self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)
 
-        realtime = 'realtime' in config and config['realtime']
-        debug = 'debug' in config and config['debug']
-        self._env = TableClearingEnv(realtime=realtime, debug=debug)
+        self._env = TableClearingEnv(realtime=self._realtime, debug=self._debug)
         self._episode = None
 
         self._setup_new_episode()
+
+    def _parse_config(self, render=False, realtime=False, debug=False, target_pose=None, gripper_pose=None):
+        self._render = render
+        self._realtime = realtime
+        self._debug = debug
+        self._target_pose = target_pose
+        self._gripper_pose = gripper_pose
 
     def _setup_new_episode(self):
         if self._episode is not None:
