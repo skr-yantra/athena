@@ -4,16 +4,14 @@ import numpy as np
 
 class Entity(object):
 
-    def __init__(self, urdf, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
-                 fixed_base=False, scale=1, load_flags=0):
+    def __init__(self, urdf, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fixed_base=False, scale=1):
         self._pb_client = pb_client
         self._id = pb_client.loadURDF(
             urdf,
             basePosition=position,
             baseOrientation=orientation,
             useFixedBase=fixed_base,
-            globalScaling=scale,
-            flags=load_flags
+            globalScaling=scale
         )
         self._position = position
         self._orientation = orientation
