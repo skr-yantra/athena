@@ -194,6 +194,10 @@ class Episode(object):
     def cleanup(self):
         return self._target.remove()
 
+    @property
+    def start_time(self):
+        return self._start_time
+
 
 class EpisodeState(object):
 
