@@ -224,6 +224,10 @@ class IRB120(Entity):
 
         return diff
 
+    def reset_joint_states(self):
+        for i in MOVABLE_JOINT_INDICES:
+            self._pb_client.resetJointState(self.id, i, 0)
+
     def capture_gripper_camera(self):
         return self._gripper_cam.state
 

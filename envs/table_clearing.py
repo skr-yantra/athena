@@ -50,6 +50,7 @@ class GymEnvironment(Env):
         if self._target_pose is not None:
             target_position, target_orientation = self._target_pose
 
+        self._env.robot.reset_joint_states()
         self._env.robot.set_gripper_finger(True)
         self._env.robot.set_gripper_pose(gripper_position, gripper_orientation).spin(self._env)
 
