@@ -10,6 +10,9 @@ from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
 
+_TIME_LIMIT = 5 * 60 * 1e9
+
+
 class GymEnvironment(Env):
 
     def __init__(self, config):
@@ -65,7 +68,10 @@ class GymEnvironment(Env):
 
         state = self._episode.state()
         reward = self._reward_calc.update(state)
-        done = state.done
+
+        elapsed_time = self._episode.env.time - self._episode.start_time
+
+        done = state.done or elapsed_time > _TIME_LIMIT
 
         return GymEnvironment._proc_state(state), reward, done, {}
 
