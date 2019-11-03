@@ -242,14 +242,14 @@ class IRB120(Entity):
         to, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            offset + (0.01, 0, 0),
+            offset + (100, 0, 0),
             (0, 0, 0, 1)
         )
 
         up, _ = self._pb_client.multiplyTransforms(
             position,
             orientation,
-            offset + (0, 0, 0.01),
+            offset + (0, 0, 100),
             (0, 0, 0, 1)
         )
 
