@@ -271,7 +271,7 @@ class EpisodeState(object):
         return self._collided
 
     @property
-    def reached(self):
+    def reached_destination(self):
         return self._reached
 
     @property

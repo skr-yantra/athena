@@ -106,11 +106,11 @@ class RewardCalculator(object):
             reward += self._params.reward.grasped
 
         # Dropped target
-        if self._s_tm1.grasped and not state.grasped and not state.reached:
+        if self._s_tm1.grasped and not state.grasped and not state.reached_destination:
             reward += self._params.reward.dropped
 
         # Reached destination
-        if self._s_tm1.grasped and not state.grasped and state.reached:
+        if self._s_tm1.grasped and not state.grasped and state.reached_destination:
             reward += self._params.reward.delivered
 
         # Collided
