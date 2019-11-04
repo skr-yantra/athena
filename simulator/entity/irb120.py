@@ -43,7 +43,7 @@ class IRB120(Entity):
         self._gripper_cam = Camera(
             self._pb_client,
             resolution=(128, 128),
-            fov=60.,
+            fov=90.,
             near_plane=0.001,
             far_plane=2.,
             view_calculator=self._gripper_cam_view_calculator,
@@ -234,7 +234,7 @@ class IRB120(Entity):
     def _gripper_cam_view_calculator(self):
         position, orientation = self.gripper_pose
 
-        offset = np.array([-0.03, 0, 0.01])
+        offset = np.array([-0.03, 0, 0.02])
 
         eye, _ = self._pb_client.multiplyTransforms(
             position,
