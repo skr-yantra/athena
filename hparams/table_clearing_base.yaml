@@ -4,8 +4,8 @@ reward:
   time: -1.0
   action_penalty: -0.5
 
-  grasped: 100.0
+  grasped: 500.0
   delivered: 1000.0
 
-  dropped: -200.0
+  dropped: -1000.0
   collided: -1000.0
