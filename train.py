@@ -32,7 +32,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 
     config["lambda"] = 0.95
     config["kl_coeff"] = 0.5
-    config["vf_clip_param"] = 2000.0
+    config["vf_clip_param"] = 100.0
     config["entropy_coeff"] = 0.01
 
     config["train_batch_size"] = 5000
