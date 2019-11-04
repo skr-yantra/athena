@@ -27,6 +27,16 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
     config["num_workers"] = num_workers
     config["env_config"] = {"render": render}
 
+    config["lambda"] = 0.95
+    config["kl_coeff"] = 0.5
+    config["vf_clip_param"] = 2000.0
+    config["entropy_coeff"] = 0.01
+
+    config["train_batch_size"] = 5000
+    config["sample_batch_size"] = 200
+    config["sgd_minibatch_size"] = 500
+    config["num_sgd_iter"] = 30
+
     comet = new_experiment() if comet else None
 
     trainer = PPOTrainer(config=config, env=environment)
