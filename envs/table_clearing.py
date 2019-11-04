@@ -100,7 +100,11 @@ class RewardCalculator(object):
     def update(self, state: EpisodeState):
         run_time = (state.time - self._s_tm1.time) / 1e9
 
+        # Time penalty
         reward = self._params.reward.time * run_time
+
+        # Action penalty
+        reward += self._params.reward.action_penalty
 
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:
