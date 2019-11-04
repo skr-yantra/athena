@@ -53,8 +53,8 @@ class IRB120(Entity):
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[0])
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[1])
 
-        self._grasp_interrupt = NumericStateInterrupt(1, lambda: 1 if self._grasp_force_filtered() > 5 else 0)
-        self._grasp_force_filter = MovingAverage(count=480, shape=(1, ))
+        self._grasp_interrupt = NumericStateInterrupt(1, lambda: 1 if self._grasp_force_filtered() > .2 else 0)
+        self._grasp_force_filter = MovingAverage(count=120, shape=(1, ))
 
     def _grasp_force_filtered(self):
         force = self._grasp_force_state
