@@ -111,6 +111,14 @@ class RewardCalculator(object):
         # Action penalty
         reward += self._params.reward.action_penalty
 
+        # Entered src tray (not grasped)
+        if state.reached_src_tray and not self._s_tm1.reached_src_tray and not state.grasped:
+            reward += self._params.reward.enter_src_tray_not_grasped
+
+        # Exited src tray (not grasped)
+        if self._s_tm1.reached_src_tray and not state.reached_src_tray and not state.grasped:
+            reward += self._params.reward.exit_src_tray_not_grasped
+
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:
             reward += self._params.reward.grasped

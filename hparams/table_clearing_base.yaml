@@ -6,6 +6,8 @@ reward:
 
   grasped: 500.0
   delivered: 1000.0
+  enter_src_tray_not_grasped: 50.0
 
   dropped: -1000.0
   collided: -1000.0
+  exit_src_tray_not_grasped: -100.0
