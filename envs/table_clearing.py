@@ -10,7 +10,7 @@ from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
 
-_TIME_LIMIT = 30 * 60 * 1e9
+_TIME_LIMIT = 30 * 60
 
 
 class GymEnvironment(Env):
@@ -103,7 +103,7 @@ class RewardCalculator(object):
         self._params = params
 
     def update(self, state: EpisodeState):
-        run_time = (state.time - self._s_tm1.time) / 1e9
+        run_time = state.time - self._s_tm1.time
 
         # Time penalty
         reward = self._params.reward.time * run_time

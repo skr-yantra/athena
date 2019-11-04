@@ -20,7 +20,7 @@ class TimeoutInterrupt(Interrupt):
     def __init__(self, env: base.Environment, timeout: float):
         super(TimeoutInterrupt, self).__init__()
         self._start = env.time
-        self._timeout = timeout * 1e9
+        self._timeout = timeout
         self._env = env
 
     def should_interrupt(self):
