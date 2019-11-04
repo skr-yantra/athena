@@ -35,12 +35,10 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
         result = trainer.train()
         print(pretty_print(result))
 
+        check_point = None
         if i % save_every == 0 or i == iterations-1:
             check_point = trainer.save()
             print('Checkpoint saved at {}'.format(check_point))
-
-            if comet is not None:
-                comet.log_asset_folder(os.path.dirname(check_point), step=i)
 
         if comet is None:
             continue
@@ -54,6 +52,9 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 
         for metric in metrics:
             comet.log_metric(metric, result[metric])
+
+        if check_point is not None:
+            comet.log_asset_folder(os.path.dirname(check_point), step=i)
 
 
 @click.command('train')
