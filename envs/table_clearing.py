@@ -74,7 +74,7 @@ class GymEnvironment(Env):
 
         done = state.done or elapsed_time > _TIME_LIMIT
 
-        return GymEnvironment._proc_state(state), reward, done, {}
+        return GymEnvironment._proc_state(state), reward, done, self._reward_calc.info
 
     @classmethod
     def _proc_state(cls, state):
@@ -101,40 +101,62 @@ class RewardCalculator(object):
     def __init__(self, initial_state, params=read_params('table_clearing_base')):
         self._s_tm1 = initial_state
         self._params = params
+        self._info = {
+            'time_penalty': 0,
+            'action_penalty': 0,
+            'src_tray_entry_not_grasped': 0,
+            'src_tray_exit_not_grasped': 0,
+            'grasp': 0,
+            'drop': 0,
+            'reached': 0,
+            'collided': 0,
+        }
 
     def update(self, state: EpisodeState):
         run_time = state.time - self._s_tm1.time
 
         # Time penalty
         reward = self._params.reward.time * run_time
+        self._info['time_penalty'] += run_time
 
         # Action penalty
         reward += self._params.reward.action_penalty
+        self._info['action_penalty'] += 1
 
         # Entered src tray (not grasped)
         if state.reached_src_tray and not self._s_tm1.reached_src_tray and not state.grasped:
             reward += self._params.reward.enter_src_tray_not_grasped
+            self._info['src_tray_entry_not_grasped'] += 1
 
         # Exited src tray (not grasped)
         if self._s_tm1.reached_src_tray and not state.reached_src_tray and not state.grasped:
             reward += self._params.reward.exit_src_tray_not_grasped
+            self._info['src_tray_exit_not_grasped'] += 1
 
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:
             reward += self._params.reward.grasped
+            self._info['grasp'] += 1
 
         # Dropped target
         if self._s_tm1.grasped and not state.grasped and not state.reached_dest_tray:
             reward += self._params.reward.dropped
+            self._info['drop'] += 1
 
         # Reached destination
         if self._s_tm1.grasped and not state.grasped and state.reached_dest_tray:
             reward += self._params.reward.delivered
+            self._info['reached'] += 1
 
         # Collided
         if state.collided:
             reward += self._params.reward.collided
+            self._info['collided'] += 1
 
         self._s_tm1 = state
 
         return reward
+
+    @property
+    def info(self):
+        return self._info

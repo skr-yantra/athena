@@ -26,6 +26,9 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
     config["num_gpus"] = num_gpus
     config["num_workers"] = num_workers
     config["env_config"] = {"render": render}
+    config["callbacks"] = {
+        "on_episode_end": _handle_episode_end
+    }
 
     config["lambda"] = 0.95
     config["kl_coeff"] = 0.5
@@ -65,6 +68,12 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 
         if check_point is not None:
             comet.log_asset_folder(os.path.dirname(check_point), step=i)
+
+
+def _handle_episode_end(info):
+    episode = info['episode']
+    for k, v in episode.last_info_for().items():
+        episode.custom_metrics[k] = v
 
 
 @click.command('train')
