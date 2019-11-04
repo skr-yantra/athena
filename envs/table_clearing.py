@@ -22,7 +22,7 @@ class GymEnvironment(Env):
         pb.connect(pb.GUI if self._render else pb.DIRECT)
 
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
-        self.observation_space = Box(shape=(128, 128, 3), low=0, high=255, dtype=np.uint8)
+        self.observation_space = Box(shape=(128, 128, 4), low=0, high=255, dtype=np.uint8)
 
         self._env = TableClearingEnv(realtime=self._realtime, debug=self._debug)
         self._episode = None
@@ -78,8 +78,13 @@ class GymEnvironment(Env):
 
     @classmethod
     def _proc_state(cls, state):
-        rgba, _ = state.gripper_camera
-        return rgba[:, :, :3]
+        rgba, depth = state.gripper_camera
+        obs = np.zeros((128, 128, 4))
+
+        obs[:, :, :3] = rgba[:, :, :3]
+        obs[:, :, 3] = depth
+
+        return obs
 
     def reset(self):
         self._setup_new_episode()
