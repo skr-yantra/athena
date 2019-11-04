@@ -98,15 +98,9 @@ class RewardCalculator(object):
         self._params = params
 
     def update(self, state: EpisodeState):
-        reward = 0.0
+        run_time = (state.time - self._s_tm1.time) / 1e9
 
-        # Reaching
-        if not state.grasped:
-            reward += self._params.reward.reaching * np.sign(self._s_tm1.d_target_gripper - state.d_target_gripper)
-
-        # Delivering
-        if state.grasped:
-            reward += self._params.reward.delivering * np.sign(self._s_tm1.d_gripper_dest_tray - state.d_gripper_dest_tray)
+        reward = self._params.reward.time * run_time
 
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:

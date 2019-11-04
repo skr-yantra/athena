@@ -1,10 +1,10 @@
 # Table clearing environment trainer hyper parameters base
 
 reward:
-  reaching: 1.0
-  grasped: 20.0
-  delivering: 1.0
-  delivered: 100.0
+  time: -1.0
 
-  dropped: -20.0
-  collided: -100.0
+  grasped: 100.0
+  delivered: 1000.0
+
+  dropped: -200.0
+  collided: -1000.0
