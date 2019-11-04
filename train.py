@@ -1,3 +1,5 @@
+import os
+
 from comet import new_experiment
 
 import ray
@@ -38,7 +40,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
             print('Checkpoint saved at {}'.format(check_point))
 
             if comet is not None:
-                comet.log_asset(check_point)
+                comet.log_asset_folder(os.path.dirname(check_point), step=i)
 
         if comet is None:
             continue
