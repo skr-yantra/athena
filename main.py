@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import click
 
 from env_test import main as env_test
