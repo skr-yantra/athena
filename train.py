@@ -12,11 +12,11 @@ import envs
 
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
-          num_workers='1', render='0', comet='0', save_every='10'):
+          num_workers='1', render='0', comet='0', save_frequency='10'):
     ray.init()
 
     iterations = int(iterations)
-    save_every = int(save_every)
+    save_frequency = int(save_frequency)
     num_gpus = int(num_gpus)
     num_workers = int(num_workers)
     render = render == '1'
@@ -36,7 +36,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
         print(pretty_print(result))
 
         check_point = None
-        if i % save_every == 0 or i == iterations-1:
+        if i % save_frequency == 0 or i == iterations-1:
             check_point = trainer.save()
             print('Checkpoint saved at {}'.format(check_point))
 
