@@ -102,6 +102,7 @@ class RewardCalculator(object):
         self._s_tm1 = initial_state
         self._params = params
         self._info = {
+            'time': 0,
             'time_penalty': 0,
             'action_penalty': 0,
             'src_tray_entry_not_grasped': 0,
@@ -114,6 +115,8 @@ class RewardCalculator(object):
 
     def update(self, state: EpisodeState):
         run_time = state.time - self._s_tm1.time
+
+        self._info['time'] = state.time
 
         # Time penalty
         reward = self._params.reward.time * run_time

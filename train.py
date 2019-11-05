@@ -1,7 +1,8 @@
 import os
 
-from comet import new_experiment
+from comet import new_experiment, wrap_experiment
 
+import numpy as np
 import ray
 import click
 
@@ -22,12 +23,15 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
     render = render == '1'
     comet = comet == '1'
 
+    comet = new_experiment() if comet else None
+
     config = DEFAULT_CONFIG.copy()
     config["num_gpus"] = num_gpus
     config["num_workers"] = num_workers
     config["env_config"] = {"render": render}
     config["callbacks"] = {
-        "on_episode_end": _handle_episode_end
+        "on_episode_step": _make_episode_step_handler(None if comet is None else wrap_experiment(comet)),
+        "on_episode_end": _handle_episode_end,
     }
 
     config["lambda"] = 0.95
@@ -39,8 +43,6 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
     config["sample_batch_size"] = 200
     config["sgd_minibatch_size"] = 500
     config["num_sgd_iter"] = 30
-
-    comet = new_experiment() if comet else None
 
     trainer = PPOTrainer(config=config, env=environment)
 
@@ -74,6 +76,21 @@ def _handle_episode_end(info):
     episode = info['episode']
     for k, v in episode.last_info_for().items():
         episode.custom_metrics[k] = v
+
+
+def _make_episode_step_handler(c):
+    def handler(info):
+        episode = info["episode"]
+        step = episode.length
+
+        if step % 1000 != 0 or c is None:
+            return
+
+        obs = episode.last_raw_obs_for()
+        rgb = np.array(obs)[:, :, :3]
+        c.comet.log_image(rgb, name=str(episode.episode_id), overwrite=True)
+
+    return handler
 
 
 @click.command('train')
