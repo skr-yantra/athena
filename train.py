@@ -14,9 +14,7 @@ import envs
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
           num_workers='1', render='0', comet='0', save_frequency='10'):
-    ray.init(
-         object_store_memory=5*1000*1000*1000
-    )
+    ray.init()
 
     iterations = int(iterations)
     save_frequency = int(save_frequency)
