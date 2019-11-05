@@ -1,6 +1,9 @@
 import time
 
+import cv2
 import pybullet as pb
+
+from ..sensors.camera import Camera
 
 
 class Environment(object):
@@ -14,6 +17,12 @@ class Environment(object):
 
         self._setup()
         self._timer = 0.0
+
+        self._camera = Camera(
+            pb_client,
+            view_calculator=lambda: ((2, 2, 2), (-2, -2, -2), (0, 0, 10)),
+            resolution=(600, 600)
+        )
 
     def spin(self):
         while True:
@@ -37,6 +46,9 @@ class Environment(object):
     def reset(self):
         self._pb_client.resetSimulation()
         self._setup()
+
+    def camera(self):
+        return self._camera
 
     @property
     def pb_client(self):
