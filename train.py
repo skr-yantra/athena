@@ -13,7 +13,7 @@ import envs
 
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
-          num_workers='1', render='0', comet='0', save_frequency='10'):
+          num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO'):
     ray.init()
 
     iterations = int(iterations)
@@ -25,26 +25,19 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 
     comet = new_experiment() if comet else None
 
-    config = DEFAULT_CONFIG.copy()
-    config["num_gpus"] = num_gpus
-    config["num_workers"] = num_workers
-    config["env_config"] = {"render": render}
-    config["callbacks"] = {
-        "on_episode_step": _make_episode_step_handler(None if comet is None else wrap_experiment(comet)),
-        "on_episode_end": _handle_episode_end,
+    config = {
+        "num_gpus": num_gpus,
+        "num_workers": num_workers,
+        "env_config": {
+            "render": render
+        },
+        "callbacks": {
+            "on_episode_step": _make_episode_step_handler(None if comet is None else wrap_experiment(comet)),
+            "on_episode_end": _handle_episode_end,
+        }
     }
 
-    config["lambda"] = 0.95
-    config["kl_coeff"] = 0.5
-    config["vf_clip_param"] = 100.0
-    config["entropy_coeff"] = 0.01
-
-    config["train_batch_size"] = 5000
-    config["sample_batch_size"] = 200
-    config["sgd_minibatch_size"] = 500
-    config["num_sgd_iter"] = 30
-
-    trainer = PPOTrainer(config=config, env=environment)
+    trainer = _get_trainer(algorithm, environment, config)
 
     for i in range(iterations):
         result = trainer.train()
@@ -70,6 +63,34 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 
         if check_point is not None:
             comet.log_asset_folder(os.path.dirname(check_point), step=i)
+
+
+def _get_trainer(name, env, defconfig):
+    if name == 'PPO':
+        return _trainer_ppo(env, defconfig)
+    else:
+        raise Exception('unknown algorithm {}'.format(name))
+
+
+def _trainer_ppo(env, defconfig):
+    config = DEFAULT_CONFIG.copy()
+
+    for k, v in defconfig.items():
+        config[k] = v
+
+    config["lambda"] = 0.95
+    config["kl_coeff"] = 0.5
+    config["vf_clip_param"] = 100.0
+    config["entropy_coeff"] = 0.01
+
+    config["train_batch_size"] = 5000
+    config["sample_batch_size"] = 200
+    config["sgd_minibatch_size"] = 500
+    config["num_sgd_iter"] = 30
+
+    trainer = PPOTrainer(config=config, env=env)
+
+    return trainer
 
 
 def _handle_episode_end(info):
