@@ -1,4 +1,4 @@
-# Table clearing environment trainer hyper parameters base
+# Table clearing environment trainer hyper parameters configs
 
 reward:
   time: 0

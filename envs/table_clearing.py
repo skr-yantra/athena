@@ -5,7 +5,7 @@ import numpy as np
 from gym import Env
 from gym.spaces import Box
 
-from hparams import read_params
+from configs import read_params
 from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
