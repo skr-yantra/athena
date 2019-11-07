@@ -166,7 +166,7 @@ class IRB120(Entity):
         limit_joint_states = np.maximum(np.minimum(joint_states, ul), ll)
 
         if np.any(joint_states != limit_joint_states):
-            logging.warning('Out of bound joint states')
+            logging.debug('Out of bound joint states')
             return self._make_revolute_joint_interrupt(self.revolute_joint_state)
 
         self._pb_client.setJointMotorControlArray(
