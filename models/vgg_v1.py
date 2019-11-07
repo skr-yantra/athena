@@ -9,7 +9,6 @@ class VGGNet(Model):
     def _build_layers_v2(self, input_dict, num_outputs, options):
         inputs = input_dict['obs']
 
-        assert num_outputs == 1
         assert inputs.shape[1:] == (128, 128, 4)
 
         conv_params = dict(
@@ -73,7 +72,7 @@ class VGGNet(Model):
 
             fc2 = tf.layers.dense(
                 fc1,
-                1,
+                num_outputs,
                 activation=None,
                 name='fc2'
             )
