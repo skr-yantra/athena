@@ -107,6 +107,11 @@ def _trainer_ppo(env, defconfig):
     config["sgd_minibatch_size"] = 500
     config["num_sgd_iter"] = 30
 
+    config["model"] = {
+        "custom_model": "vggnet_v1",
+        "custom_options": {}
+    }
+
     trainer = PPOTrainer(config=config, env=env)
 
     return trainer
