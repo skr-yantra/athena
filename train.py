@@ -6,10 +6,13 @@ import numpy as np
 import ray
 import click
 
-from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG
+from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG as PPO_DEFAULT_CONFIG
+from ray.rllib.agents.ddpg.apex import ApexDDPGTrainer, APEX_DDPG_DEFAULT_CONFIG
 from ray.tune.logger import pretty_print
+from ray.rllib.models import MODEL_DEFAULTS
 
 import envs
+import models
 
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
@@ -68,15 +71,31 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
 def _get_trainer(name, env, defconfig):
     if name == 'PPO':
         return _trainer_ppo(env, defconfig)
+    elif name == 'APEX_DDPG':
+        return _trainer_apex_ddpg(env, defconfig)
     else:
         raise Exception('unknown algorithm {}'.format(name))
 
 
-def _trainer_ppo(env, defconfig):
-    config = DEFAULT_CONFIG.copy()
+def _trainer_apex_ddpg(env, defconfig):
+    config = APEX_DDPG_DEFAULT_CONFIG.copy()
+    _copy_dict(defconfig, config)
 
-    for k, v in defconfig.items():
-        config[k] = v
+    config["use_state_preprocessor"] = True
+
+    config["model"] = {
+        "custom_model": "vggnet_v1",
+        "custom_options": {}
+    }
+
+    trainer = ApexDDPGTrainer(config=config, env=env)
+
+    return trainer
+
+
+def _trainer_ppo(env, defconfig):
+    config = PPO_DEFAULT_CONFIG.copy()
+    _copy_dict(defconfig, config)
 
     config["lambda"] = 0.95
     config["kl_coeff"] = 0.5
@@ -112,6 +131,11 @@ def _make_episode_step_handler(c):
         c.comet.log_image(rgb, name=str(episode.episode_id), overwrite=True)
 
     return handler
+
+
+def _copy_dict(src, dest):
+    for k, v in src.items():
+        dest[k] = v
 
 
 @click.command('train')
