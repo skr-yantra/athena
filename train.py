@@ -16,8 +16,10 @@ import models
 
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
-          num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO'):
-    ray.init()
+          num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={}):
+    ray.init(
+        object_store_memory=3*1000*1000*1000
+    )
 
     iterations = int(iterations)
     save_frequency = int(save_frequency)
@@ -40,7 +42,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
         }
     }
 
-    trainer = _get_trainer(algorithm, environment, config)
+    trainer = _get_trainer(algorithm, environment, config, config_trainer)
 
     for i in range(iterations):
         result = trainer.train()
@@ -68,23 +70,23 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
             comet.log_asset_folder(os.path.dirname(check_point), step=i)
 
 
-def _get_trainer(name, env, defconfig):
+def _get_trainer(name, env, defconfig, config_trainer):
     if name == 'PPO':
-        return _trainer_ppo(env, defconfig)
+        return _trainer_ppo(env, defconfig, **config_trainer)
     elif name == 'APEX_DDPG':
-        return _trainer_apex_ddpg(env, defconfig)
+        return _trainer_apex_ddpg(env, defconfig, **config_trainer)
     else:
         raise Exception('unknown algorithm {}'.format(name))
 
 
-def _trainer_apex_ddpg(env, defconfig):
+def _trainer_apex_ddpg(env, defconfig, model='svggnet_v1'):
     config = APEX_DDPG_DEFAULT_CONFIG.copy()
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
 
     config["model"] = {
-        "custom_model": "vggnet_v1",
+        "custom_model": model,
         "custom_options": {}
     }
 
@@ -93,7 +95,7 @@ def _trainer_apex_ddpg(env, defconfig):
     return trainer
 
 
-def _trainer_ppo(env, defconfig):
+def _trainer_ppo(env, defconfig, model='svggnet_v1'):
     config = PPO_DEFAULT_CONFIG.copy()
     _copy_dict(defconfig, config)
 
@@ -108,7 +110,7 @@ def _trainer_ppo(env, defconfig):
     config["num_sgd_iter"] = 30
 
     config["model"] = {
-        "custom_model": "vggnet_v1",
+        "custom_model": model,
         "custom_options": {}
     }
 
@@ -146,5 +148,6 @@ def _copy_dict(src, dest):
 @click.command('train')
 @click.argument('name', type=click.STRING)
 @click.option('--config', '-c', type=(str, str), multiple=True)
-def main(name, config):
-    train(name, **dict(config))
+@click.option('--config_trainer', '-ct', type=(str, str), multiple=True)
+def main(name, config, config_trainer):
+    train(name, **dict(config), config_trainer=dict(config_trainer))
