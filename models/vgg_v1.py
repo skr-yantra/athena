@@ -6,56 +6,66 @@ tf = try_import_tf()
 
 class VGGNet(Model):
 
-    def _build_layers_v2(self, input_dict, num_outputs, options):
-        inputs = input_dict['obs']
-
-        assert inputs.shape[1:] == (128, 128, 4)
-
-        conv_params = dict(
+    def __init__(self, *args, network_name='vgg_v1', **kwargs):
+        self.conv_params = dict(
             padding='same',
             activation=tf.nn.relu,
             kernel_size=3,
             strides=(1, 1),
         )
 
-        max_pool_params = dict(
+        self.max_pool_params = dict(
             pool_size=2,
             strides=2,
         )
 
-        def conv(filters, name):
-            def builder(inputs):
-                return tf.layers.conv2d(inputs, **conv_params, filters=filters, name=name)
+        self._name = network_name
 
-            return builder
+        super(VGGNet, self).__init__(*args, **kwargs)
 
-        def pool(name):
-            def builder(inputs):
-                return tf.layers.max_pooling2d(inputs, **max_pool_params, name=name)
+    def _conv(self, filters, name):
+        def builder(inputs):
+            return tf.layers.conv2d(inputs, **self.conv_params, filters=filters, name=name)
 
-            return builder
+        return builder
 
-        conv_layers = [
-            conv(64, 'conv1'),
-            conv(64, 'conv2'),
-            pool('pool1'),
-            conv(128, 'conv3'),
-            conv(128, 'conv4'),
-            pool('pool2'),
-            conv(256, 'conv5'),
-            conv(256, 'conv6'),
-            conv(256, 'conv7'),
-            pool('pool3'),
-            conv(512, 'conv8'),
-            conv(512, 'conv9'),
-            conv(512, 'conv10'),
-            pool('pool4'),
-            conv(512, 'conv11'),
-            conv(512, 'conv12'),
-            conv(512, 'conv13'),
-            pool('pool5'),
+    def _pool(self, name):
+        def builder(inputs):
+            return tf.layers.max_pooling2d(inputs, **self.max_pool_params, name=name)
+
+        return builder
+
+    def _make_conv_layer_builders(self):
+        return [
+            self._conv(64, 'conv1'),
+            self._conv(64, 'conv2'),
+            self._pool('pool1'),
+            self._conv(128, 'conv3'),
+            self._conv(128, 'conv4'),
+            self._pool('pool2'),
+            self._conv(256, 'conv5'),
+            self._conv(256, 'conv6'),
+            self._conv(256, 'conv7'),
+            self._pool('pool3'),
+            self._conv(512, 'conv8'),
+            self._conv(512, 'conv9'),
+            self._conv(512, 'conv10'),
+            self._pool('pool4'),
+            self._conv(512, 'conv11'),
+            self._conv(512, 'conv12'),
+            self._conv(512, 'conv13'),
+            self._pool('pool5'),
         ]
 
+    def _build_layers_v2(self, input_dict, num_outputs, options):
+        inputs = input_dict['obs']
+        assert inputs.shape[1:] == (128, 128, 4)
+
+        conv_layers = self._make_conv_layer_builders()
+
+        return self._build_vgg(inputs, conv_layers, 512, num_outputs)
+
+    def _build_vgg(self, inputs, conv_layers, fc1_size=512, fc2_size=1):
         output = inputs
         with tf.name_scope('vgg_v1'):
             for builder in conv_layers:
@@ -65,14 +75,14 @@ class VGGNet(Model):
 
             fc1 = tf.layers.dense(
                 output,
-                512,
+                fc1_size,
                 activation=tf.nn.relu,
                 name='fc1'
             )
 
             fc2 = tf.layers.dense(
                 fc1,
-                num_outputs,
+                fc2_size,
                 activation=None,
                 name='fc2'
             )
