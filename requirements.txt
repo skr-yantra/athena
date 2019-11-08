@@ -13,7 +13,7 @@ Click==7.0
 cloudpickle==1.2.2
 colorama==0.4.1
 comet-git-pure==0.19.13
-comet-ml==2.0.16
+comet-ml==2.0.17
 configobj==5.0.6
 cycler==0.10.0
 decorator==4.4.1
@@ -70,6 +70,7 @@ pandocfilters==1.4.2
 parso==0.5.1
 pexpect==4.7.0
 pickleshare==0.7.5
+Pillow==6.2.1
 pluggy==0.13.0
 prometheus-client==0.7.1
 prompt-toolkit==2.0.10
