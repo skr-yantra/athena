@@ -67,7 +67,7 @@ class VGGNet(Model):
 
     def _build_vgg(self, inputs, conv_layers, fc1_size=512, fc2_size=1):
         output = inputs
-        with tf.name_scope('vgg_v1'):
+        with tf.name_scope(self._name):
             for builder in conv_layers:
                 output = builder(output)
 

@@ -3,6 +3,9 @@ from .vgg_v1 import VGGNet
 
 class SimpleVisionNet(VGGNet):
 
+    def __init__(self, *args, **kwargs):
+        super(SimpleVisionNet, self).__init__(*args, **kwargs, network_name='svggnet_v1')
+
     def _make_conv_layer_builders(self):
         return [
             self._conv(32, 'conv1'),
