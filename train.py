@@ -15,7 +15,7 @@ import envs
 import models
 
 
-def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
+def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None,
           num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={}):
     ray.init()
 
@@ -41,6 +41,9 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1',
     }
 
     trainer = _get_trainer(algorithm, environment, config, config_trainer)
+
+    if checkpoint is not None:
+        trainer.restore(checkpoint)
 
     for i in range(iterations):
         result = trainer.train()
