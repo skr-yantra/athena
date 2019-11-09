@@ -151,6 +151,7 @@ class Episode(object):
         self._id = uuid.uuid4()
         self._env = env
         self._start_time = self._env.time
+        self._num_actions = 0
 
         if target_position is None or target_orientation is None:
             target_position, target_orientation = self._generate_target_pose()
@@ -172,6 +173,7 @@ class Episode(object):
         return position, pb.getQuaternionFromEuler(orientation)
 
     def act(self, action: Action, timeout=5.):
+        self._num_actions += 1
         interrupt = action.apply(self._env)
         interrupt = interrupts.any(self._collision_interrupt, TimeoutInterrupt(self.env, timeout), interrupt)
         interrupt.spin(self._env)
@@ -197,6 +199,10 @@ class Episode(object):
     @property
     def start_time(self):
         return self._start_time
+
+    @property
+    def num_actions(self):
+        return self._num_actions
 
 
 class EpisodeState(object):

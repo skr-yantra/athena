@@ -72,7 +72,7 @@ class GymEnvironment(Env):
 
         elapsed_time = self._episode.env.time - self._episode.start_time
 
-        done = state.done or elapsed_time > _TIME_LIMIT
+        done = state.done or elapsed_time > _TIME_LIMIT or self._episode.num_actions > (_TIME_LIMIT * 15)
 
         return GymEnvironment._proc_state(state), reward, done, self._reward_calc.info
 
