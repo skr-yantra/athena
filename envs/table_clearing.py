@@ -10,7 +10,7 @@ from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
 
-_TIME_LIMIT = 30 * 60
+_TIME_LIMIT = 10 * 60
 
 
 class GymEnvironment(Env):
