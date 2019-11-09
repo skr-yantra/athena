@@ -8,6 +8,7 @@ import click
 
 from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG as PPO_DEFAULT_CONFIG
 from ray.rllib.agents.ddpg.apex import ApexDDPGTrainer, APEX_DDPG_DEFAULT_CONFIG
+from ray.rllib.agents.ddpg import DDPGTrainer, DEFAULT_CONFIG as DDPG_DEFAULT_CONFIG
 from ray.tune.logger import pretty_print
 from ray.rllib.models import MODEL_DEFAULTS
 
@@ -74,10 +75,28 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
 def _get_trainer(name, env, defconfig, config_trainer):
     if name == 'PPO':
         return _trainer_ppo(env, defconfig, **config_trainer)
+    elif name == 'DDPG':
+        return _trainer_ddpg(env, defconfig, **config_trainer)
     elif name == 'APEX_DDPG':
         return _trainer_apex_ddpg(env, defconfig, **config_trainer)
     else:
         raise Exception('unknown algorithm {}'.format(name))
+
+
+def _trainer_ddpg(env, defconfig, model='svggnet_v1'):
+    config = DDPG_DEFAULT_CONFIG.copy()
+    _copy_dict(defconfig, config)
+
+    config["use_state_preprocessor"] = True
+
+    config["model"] = {
+        "custom_model": model,
+        "custom_options": {}
+    }
+
+    trainer = DDPGTrainer(config=config, env=env)
+
+    return trainer
 
 
 def _trainer_apex_ddpg(env, defconfig, model='svggnet_v1'):
