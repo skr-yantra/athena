@@ -11,3 +11,10 @@ reward:
   dropped: -1000.0
   collided: -1000.0
   exit_src_tray_not_grasped: -100.0
+
+  max_time: -1000.0
+  max_actions: -1000.0
+
+episode:
+  max_time: 300 #seconds
+  max_actions: 5000

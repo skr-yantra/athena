@@ -10,8 +10,6 @@ from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 from .reward import RewardLog, RewardSession
 
-_TIME_LIMIT = 1 * 60
-
 
 class GymEnvironment(Env):
 
@@ -68,11 +66,7 @@ class GymEnvironment(Env):
             open_gripper=action[4] > 0))
 
         state = self._episode.state()
-        reward = self._reward_calc.update(state)
-
-        elapsed_time = self._episode.env.time - self._episode.start_time
-
-        done = state.done or elapsed_time > _TIME_LIMIT or self._episode.num_actions > (_TIME_LIMIT * 15)
+        reward, done = self._reward_calc.update(self._episode, state)
 
         return GymEnvironment._proc_state(state), reward, done, self._reward_calc.info
 
@@ -103,9 +97,13 @@ class RewardCalculator(object):
         self._params = params
         self._log = RewardLog()
 
-    def update(self, state: EpisodeState):
+    def update(self, episode, state: EpisodeState):
         rewards = RewardSession()
+        done = False
+
         run_time = state.time - self._s_tm1.time
+        episode_elapsed_time = episode.env.time - episode.start_time
+        episode_num_actions = episode.num_actions
 
         # Time penalty
         rewards.time_penalty = self._params.reward.time * run_time
@@ -136,11 +134,22 @@ class RewardCalculator(object):
         # Collided
         if state.collided:
             rewards.collision_penalty = self._params.reward.collided
+            done = True
+
+        # Timeout
+        if episode_elapsed_time > self._params.episode.max_time:
+            rewards.max_time_penalty = self._params.reward.max_time
+            done = True
+
+        # Max actions used
+        if episode_num_actions > self._params.episode.max_actions:
+            rewards.max_actions_penalty = self._params.reward.max_actions
+            done = True
 
         self._s_tm1 = state
         self._log.log(rewards)
 
-        return rewards.sum()
+        return rewards.sum(), done
 
     @property
     def info(self):
