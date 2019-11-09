@@ -8,7 +8,7 @@ from gym.spaces import Box
 from configs import read_params
 from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
-
+from .reward import RewardLog, RewardSession
 
 _TIME_LIMIT = 1 * 60
 
@@ -101,65 +101,47 @@ class RewardCalculator(object):
     def __init__(self, initial_state, params=read_params('table_clearing_base')):
         self._s_tm1 = initial_state
         self._params = params
-        self._info = {
-            'time': 0,
-            'time_penalty': 0,
-            'action_penalty': 0,
-            'src_tray_entry_not_grasped': 0,
-            'src_tray_exit_not_grasped': 0,
-            'grasp': 0,
-            'drop': 0,
-            'reached': 0,
-            'collided': 0,
-        }
+        self._log = RewardLog()
 
     def update(self, state: EpisodeState):
+        rewards = RewardSession()
         run_time = state.time - self._s_tm1.time
 
-        self._info['time'] = state.time
-
         # Time penalty
-        reward = self._params.reward.time * run_time
-        self._info['time_penalty'] += run_time
+        rewards.time_penalty = self._params.reward.time * run_time
 
         # Action penalty
-        reward += self._params.reward.action_penalty
-        self._info['action_penalty'] += 1
+        rewards.action_penalty = self._params.reward.action_penalty
 
         # Entered src tray (not grasped)
         if state.reached_src_tray and not self._s_tm1.reached_src_tray and not state.grasped:
-            reward += self._params.reward.enter_src_tray_not_grasped
-            self._info['src_tray_entry_not_grasped'] += 1
+            rewards.enter_src_tray_reward = self._params.reward.enter_src_tray_not_grasped
 
         # Exited src tray (not grasped)
         if self._s_tm1.reached_src_tray and not state.reached_src_tray and not state.grasped:
-            reward += self._params.reward.exit_src_tray_not_grasped
-            self._info['src_tray_exit_not_grasped'] += 1
+            rewards.exit_src_tray_penalty = self._params.reward.exit_src_tray_not_grasped
 
         # Successful grasp
         if not self._s_tm1.grasped and state.grasped:
-            reward += self._params.reward.grasped
-            self._info['grasp'] += 1
+            rewards.grasp_reward = self._params.reward.grasped
 
         # Dropped target
         if self._s_tm1.grasped and not state.grasped and not state.reached_dest_tray:
-            reward += self._params.reward.dropped
-            self._info['drop'] += 1
+            rewards.drop_penalty = self._params.reward.dropped
 
         # Reached destination
         if self._s_tm1.grasped and not state.grasped and state.reached_dest_tray:
-            reward += self._params.reward.delivered
-            self._info['reached'] += 1
+            rewards.reach_destination_reward = self._params.reward.delivered
 
         # Collided
         if state.collided:
-            reward += self._params.reward.collided
-            self._info['collided'] += 1
+            rewards.collision_penalty = self._params.reward.collided
 
         self._s_tm1 = state
+        self._log.log(rewards)
 
-        return reward
+        return rewards.sum()
 
     @property
     def info(self):
-        return self._info
+        return self._log.info
