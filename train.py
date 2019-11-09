@@ -141,8 +141,16 @@ def _trainer_ppo(env, defconfig, model='svggnet_v1'):
 
 def _handle_episode_end(info):
     episode = info['episode']
-    for k, v in episode.last_info_for().items():
-        episode.custom_metrics[k] = v
+    _flatten_info(episode.last_info_for(), episode.custom_metrics)
+
+
+def _flatten_info(info, out, prefix=None):
+    for k, v in info.items():
+        name = '{}_{}'.format(prefix, k) if prefix is not None else k
+        if isinstance(v, dict):
+            _flatten_info(v, out, name)
+        else:
+            out[name] = v
 
 
 def _make_episode_step_handler(c):
