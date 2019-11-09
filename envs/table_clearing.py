@@ -10,7 +10,7 @@ from simulator.env.table_clearing import EpisodeState, Action
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 
 
-_TIME_LIMIT = 10 * 60
+_TIME_LIMIT = 1 * 60
 
 
 class GymEnvironment(Env):
@@ -21,7 +21,7 @@ class GymEnvironment(Env):
 
         pb.connect(pb.GUI if self._render else pb.DIRECT)
 
-        self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
+        self.action_space = Box(shape=(5, ), high=100., low=-100., dtype=np.float32)
         self.observation_space = Box(shape=(128, 128, 4), low=0, high=255, dtype=np.uint8)
 
         self._env = TableClearingEnv(realtime=self._realtime, debug=self._debug)
@@ -58,7 +58,7 @@ class GymEnvironment(Env):
         self._reward_calc = RewardCalculator(self._episode.state())
 
     def step(self, action):
-        action = np.array(action)
+        action = np.array(action) / 100.
         action[:3] = action[:3] * 0.01
         action[3] = 10. * action[3] * math.pi / 180.0
 
