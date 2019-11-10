@@ -1,8 +1,8 @@
 # Table clearing environment trainer hyper parameters configs
 
 reward:
-  time: 0
-  action_penalty: 0
+  time: -5 # per second
+  action_penalty: -1
   travel_to_target: 100 # per meter
   travel_to_dest: 100 # per meter
 
