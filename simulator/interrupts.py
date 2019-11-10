@@ -48,7 +48,6 @@ class BooleanStateInterrupt(Interrupt):
 
     def should_interrupt(self):
         interrupt = self._state_reader()
-        print(interrupt)
         return interrupt
 
 
