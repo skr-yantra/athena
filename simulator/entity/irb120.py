@@ -198,9 +198,7 @@ class IRB120(Entity):
             GRIPPER_FINGER_INDICES,
             pb.POSITION_CONTROL,
             joint_states,
-            forces=(self._max_finger_force,) * 2,
-            positionGains=(0.3,) * len(joint_states),
-            velocityGains=(1,) * len(joint_states)
+            forces=(self._max_finger_force,) * 2
         )
 
         return self._make_finger_joint_interrupt(joint_states)
