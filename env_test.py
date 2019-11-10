@@ -11,9 +11,9 @@ import envs
 from simulator.env.irb120 import IRB120
 
 
-def test_table_clearing_v0(realtime='0', debug='0'):
+def test_table_clearing_v0(render='1', realtime='0', debug='0'):
     config = {
-        'render': True,
+        'render': render == '1',
         'realtime': realtime == '1',
         'debug': debug == '1',
         'target_pose': ((0, 0, 0.1), pb.getQuaternionFromEuler((0, 0, math.pi / 4))),
