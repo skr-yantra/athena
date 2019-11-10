@@ -111,6 +111,13 @@ class RewardCalculator(object):
         # Action penalty
         rewards.action_penalty = self._params.reward.action_penalty
 
+        # Travel to target penalty
+        if not state.grasped:
+            dist_reduced = self._s_tm1.d_target_gripper - state.d_target_gripper
+            dist_travelled = np.linalg.norm(np.array(state.gripper_pos) - self._s_tm1.gripper_pos)
+            rewards.travel_to_target_penalty = dist_reduced * self._params.reward.travel_to_target - \
+                max(dist_travelled - dist_reduced, 0) * self._params.reward.travel_to_target
+
         # Entered src tray (not grasped)
         if state.reached_src_tray and not self._s_tm1.reached_src_tray and not state.grasped:
             rewards.enter_src_tray_reward = self._params.reward.enter_src_tray_not_grasped
