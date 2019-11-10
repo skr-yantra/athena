@@ -28,8 +28,8 @@ class Environment(base.Environment):
         self._robot = IRB120(self._pb_client, debug=self._debug)
         self._table = Table(self._pb_client, position=(0, -0.4, 0), scale=0.5)
 
-        self._src_tray = Tray(self._pb_client, position=(0.2, -0.4, self._table.z_end), scale=0.5)
-        self._dest_tray = Tray(self._pb_client, position=(-0.2, -0.4, self._table.z_end), scale=0.5)
+        self._src_tray = Tray(self._pb_client, position=(0.2, -0.4, self._table.z_end), scale=0.5, debug=self._debug)
+        self._dest_tray = Tray(self._pb_client, position=(-0.2, -0.4, self._table.z_end), scale=0.5, debug=self._debug)
 
         if self._debug:
             self._pb_client.addUserDebugLine(
@@ -273,6 +273,10 @@ class EpisodeState(object):
 
     def _calc_done(self):
         return self._collided or self._reached_dest_tray
+
+    @property
+    def gripper_pos(self):
+        return self._gripper_pos
 
     @property
     def d_target_gripper(self):

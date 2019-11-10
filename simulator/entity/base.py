@@ -4,7 +4,9 @@ import numpy as np
 
 class Entity(object):
 
-    def __init__(self, urdf, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fixed_base=False, scale=1):
+    def __init__(self, urdf, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
+                 fixed_base=False, scale=1, debug=False):
+        self._debug = debug
         self._pb_client = pb_client
         self._id = pb_client.loadURDF(
             urdf,
@@ -15,6 +17,28 @@ class Entity(object):
         )
         self._position = position
         self._orientation = orientation
+
+        if debug:
+            self._pb_client.addUserDebugLine(
+                (0, 0, 0),
+                (0, 0, 0.1),
+                (1, 0, 0),
+                parentObjectUniqueId=self.id
+            )
+
+            self._pb_client.addUserDebugLine(
+                (0, 0, 0),
+                (0, 0.1, 0),
+                (0, 1, 0),
+                parentObjectUniqueId=self.id
+            )
+
+            self._pb_client.addUserDebugLine(
+                (0, 0, 0),
+                (0.1, 0, 0),
+                (0, 0, 1),
+                parentObjectUniqueId=self.id
+            )
 
     @property
     def id(self):
