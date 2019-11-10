@@ -9,7 +9,7 @@ from .. import interrupts
 from ..data import abb_irb120
 from .base import Entity
 from ..sensors.camera import Camera
-from ..interrupts import NumericStateInterrupt
+from ..interrupts import NumericStateInterrupt, BooleanStateInterrupt
 from ..filter import MovingAverage
 
 REVOLUTE_JOINT_INDICES = np.array((1, 2, 3, 4, 5, 6))
@@ -31,7 +31,7 @@ def to_deg(ori):
 class IRB120(Entity):
 
     def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
-                 fixed=True, scale=1., max_finger_force=250., debug=False, gravity=9.81):
+                 fixed=True, scale=1., max_finger_force=200., debug=False, gravity=9.81):
         self._debug = debug
 
         urdf = abb_irb120()
@@ -53,14 +53,12 @@ class IRB120(Entity):
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[0])
         self._pb_client.enableJointForceTorqueSensor(self.id, GRIPPER_FINGER_INDICES[1])
 
-        self._grasp_interrupt = NumericStateInterrupt(1, lambda: 1 if self._grasp_force_filtered() > .2 else 0)
+        self._grasp_interrupt = BooleanStateInterrupt(lambda: self.grasp_force > 5)
         self._grasp_force_filter = MovingAverage(count=120, shape=(1, ))
 
-    def _grasp_force_filtered(self):
+    def update_state(self):
         force = self._grasp_force_state
-        avg,  = self._grasp_force_filter.update(force)
-
-        return avg
+        self._grasp_force_filter.update(force)
 
     @property
     def revolute_joint_state(self):
@@ -223,6 +221,10 @@ class IRB120(Entity):
         diff = np.abs(np.sqrt(np.sum(np.array([fx, fy, fz])) ** 2) - self._gravity)
 
         return diff
+
+    @property
+    def grasp_force(self):
+        return self._grasp_force_filter.get()
 
     def reset_joint_states(self):
         for i in MOVABLE_JOINT_INDICES:

@@ -40,6 +40,18 @@ class NumericStateInterrupt(Interrupt):
         return np.all(np.abs(current_state - self._target_state) <= self._tolerance)
 
 
+class BooleanStateInterrupt(Interrupt):
+
+    def __init__(self, state_reader):
+        super(BooleanStateInterrupt, self).__init__()
+        self._state_reader = state_reader
+
+    def should_interrupt(self):
+        interrupt = self._state_reader()
+        print(interrupt)
+        return interrupt
+
+
 class CollisionInterrupt(Interrupt):
 
     def __init__(self, target, exclusions=tuple(), pb_client=pb):

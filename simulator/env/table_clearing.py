@@ -58,6 +58,7 @@ class Environment(base.Environment):
 
     def step(self):
         super(Environment, self).step()
+        self.robot.update_state()
 
         if self._debug:
 
