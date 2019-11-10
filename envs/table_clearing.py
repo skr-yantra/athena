@@ -55,6 +55,8 @@ class GymEnvironment(Env):
         self._episode = self._env.new_episode(target_position=target_position, target_orientation=target_orientation)
         self._reward_calc = RewardCalculator(self._episode.state())
 
+        self._env.spin(240)
+
     def step(self, action):
         action = np.array(action) / 100.
         action[:3] = action[:3] * 0.01

@@ -24,9 +24,10 @@ class Environment(object):
             resolution=(600, 600)
         )
 
-    def spin(self):
-        while True:
+    def spin(self, count=None):
+        while count is None or count > 0:
             self.step()
+            count = count - 1 if count is not None else None
 
     def step(self):
         self._pb_client.stepSimulation()
