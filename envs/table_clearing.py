@@ -125,7 +125,7 @@ class RewardCalculator(object):
         if state.grasped:
             rewards.travel_to_dest_penalty = self._calc_travel_reward(
                 state,
-                self._s_tm1.d_gripper_dest_tray - state.d_target_gripper,
+                self._s_tm1.d_gripper_dest_tray - state.d_gripper_dest_tray,
                 self._params.reward.travel_to_dest
             )
 
