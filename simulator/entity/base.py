@@ -46,7 +46,8 @@ class Entity(object):
 
     @property
     def position(self):
-        return self._position
+        pos, _ = self._pb_client.getBasePositionAndOrientation(self._id)
+        return pos
 
     @property
     def orientation(self):
