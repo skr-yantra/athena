@@ -113,10 +113,19 @@ class RewardCalculator(object):
 
         # Travel to target penalty
         if not state.grasped:
-            dist_reduced = self._s_tm1.d_target_gripper - state.d_target_gripper
-            dist_travelled = np.linalg.norm(np.array(state.gripper_pos) - self._s_tm1.gripper_pos)
-            rewards.travel_to_target_penalty = dist_reduced * self._params.reward.travel_to_target - \
-                max(dist_travelled - dist_reduced, 0) * self._params.reward.travel_to_target
+            rewards.travel_to_target_penalty = self._calc_travel_reward(
+                state,
+                self._s_tm1.d_target_gripper - state.d_target_gripper,
+                self._params.reward.travel_to_target
+            )
+
+        # Travel to destination penalty
+        if state.grasped:
+            rewards.travel_to_dest_penalty = self._calc_travel_reward(
+                state,
+                self._s_tm1.d_gripper_dest_tray - state.d_target_gripper,
+                self._params.reward.travel_to_dest
+            )
 
         # Entered src tray (not grasped)
         if state.reached_src_tray and not self._s_tm1.reached_src_tray and not state.grasped:
@@ -157,6 +166,11 @@ class RewardCalculator(object):
         self._log.log(rewards)
 
         return rewards.sum(), done
+
+    def _calc_travel_reward(self, state, dist_reduced, rate):
+        dist_travelled = np.linalg.norm(np.array(state.gripper_pos) - self._s_tm1.gripper_pos)
+        return max(dist_reduced, 0) * rate - \
+            max(dist_travelled - dist_reduced, 0) * rate
 
     @property
     def info(self):
