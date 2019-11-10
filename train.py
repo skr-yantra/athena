@@ -1,6 +1,6 @@
 import os
 
-from comet import new_experiment, wrap_experiment
+from comet import new_experiment, new_rpc_experiment_logger
 
 import numpy as np
 import ray
@@ -27,7 +27,8 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     render = render == '1'
     comet = comet == '1'
 
-    comet = new_experiment() if comet else None
+    comet = new_experiment(disabled=comet is None)
+    comet_rpc_server, comet_client_gen = new_rpc_experiment_logger(comet, 'localhost', 8089)
 
     config = {
         "num_gpus": num_gpus,
@@ -36,7 +37,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
             "render": render
         },
         "callbacks": {
-            "on_episode_step": _make_episode_step_handler(None if comet is None else wrap_experiment(comet)),
+            "on_episode_step": _make_episode_step_handler(comet_client_gen()),
             "on_episode_end": _handle_episode_end,
         }
     }
@@ -163,7 +164,7 @@ def _make_episode_step_handler(c):
 
         obs = episode.last_raw_obs_for()
         rgb = np.array(obs)[:, :, :3]
-        c.comet.log_image(rgb, name=str(episode.episode_id), overwrite=True)
+        c.log_image(rgb.tolist(), name=str(episode.episode_id), overwrite=True)
 
     return handler
 
