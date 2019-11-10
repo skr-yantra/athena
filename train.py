@@ -105,6 +105,7 @@ def _trainer_apex_ddpg(env, defconfig, model='svggnet_v1'):
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
+    config["exploration_should_anneal"] = True
 
     config["model"] = {
         "custom_model": model,
