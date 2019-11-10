@@ -20,6 +20,7 @@ class RewardLog(object):
         log = self._log[key]
 
         log.count += 1
+        log.recent = value
         log.sum += value
         log.mean = log.sum / log.count
         log.max = max(log.max, value)
