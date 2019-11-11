@@ -45,13 +45,17 @@ class Entity(object):
         return self._id
 
     @property
+    def pose(self):
+        pos, orientation = self._pb_client.getBasePositionAndOrientation(self._id)
+        return np.array(pos), np.array(orientation)
+
+    @property
     def position(self):
-        pos, _ = self._pb_client.getBasePositionAndOrientation(self._id)
-        return pos
+        return self.pose[0]
 
     @property
     def orientation(self):
-        return self._orientation
+        return self.pose[1]
 
     @property
     def orientation_euler(self):
