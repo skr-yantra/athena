@@ -37,11 +37,6 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     comet_rpc_server, comet_client_gen = new_rpc_experiment_logger(comet, 'localhost', 8089)
 
     model_config = MODEL_DEFAULTS.copy()
-    model_config["conv_filters"] = [
-        [16, [12, 12], 4],
-        [32, [4, 4], 2],
-        [256, [16, 16], 1]
-    ]
 
     if model is not None:
         model_config = {

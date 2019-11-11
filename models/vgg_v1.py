@@ -59,7 +59,7 @@ class VGGNet(Model):
 
     def _build_layers_v2(self, input_dict, num_outputs, options):
         inputs = input_dict['obs']
-        assert inputs.shape[1:] == (128, 128, 4)
+        assert inputs.shape[1:] == (84, 84, 4)
 
         conv_layers = self._make_conv_layer_builders()
 
