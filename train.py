@@ -109,7 +109,8 @@ def _trainer_ddpg(env, defconfig):
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
-    config["pure_exploration_steps"] = 10000
+    config["pure_exploration_steps"] = 20000
+    config["learning_starts"] = 10000
 
     trainer = DDPGTrainer(config=config, env=env)
 
