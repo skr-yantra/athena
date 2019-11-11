@@ -10,9 +10,13 @@ from .cube import Cube
 
 class Tray(Entity):
 
-    def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fix_base=False, scale=1., **kwargs):
+    def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1), fix_base=False,
+                 scale=1., color=None, **kwargs):
         table = os.path.join(pybullet_data.getDataPath(), 'tray', 'traybox.urdf')
         super(Tray, self).__init__(table, pb_client, position, orientation, fix_base, scale, **kwargs)
+
+        if color is not None:
+            self._pb_client.changeVisualShape(self._id, -1, rgbaColor=color)
 
     def add_cube(self, position, orientation):
         position, orientation = self.transform(position, orientation)
