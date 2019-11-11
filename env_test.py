@@ -24,7 +24,7 @@ def test_table_clearing_v0(render='1', realtime='0', debug='0'):
 
     def act(action, count=1):
         for i in range(count):
-            _, reward, done, info = env.step(np.array(action)*100.)
+            _, reward, done, info = env.step(np.array(action))
             print('action {} reward {} done {} info {}'.format(action, reward, done, info))
 
     act([-1., 0., 0., 0., 1.], 10)
