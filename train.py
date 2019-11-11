@@ -16,7 +16,7 @@ import envs
 import models
 
 
-def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None,
+def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None, model=None,
           num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={}):
     ray.init()
 
@@ -30,6 +30,19 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     comet = new_experiment(disabled=comet is None)
     comet_rpc_server, comet_client_gen = new_rpc_experiment_logger(comet, 'localhost', 8089)
 
+    model_config = MODEL_DEFAULTS.copy()
+    model_config["conv_filters"] = [
+        [16, [12, 12], 4],
+        [32, [4, 4], 2],
+        [256, [16, 16], 1]
+    ]
+
+    if model is not None:
+        model_config = {
+            "custom_model": model,
+            "custom_options": {}
+        }
+
     config = {
         "num_gpus": num_gpus,
         "num_workers": num_workers,
@@ -39,7 +52,8 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
         "callbacks": {
             "on_episode_step": _make_episode_step_handler(comet_client_gen()),
             "on_episode_end": _handle_episode_end,
-        }
+        },
+        "model": model_config
     }
 
     trainer = _get_trainer(algorithm, environment, config, config_trainer)
@@ -84,40 +98,30 @@ def _get_trainer(name, env, defconfig, config_trainer):
         raise Exception('unknown algorithm {}'.format(name))
 
 
-def _trainer_ddpg(env, defconfig, model='svggnet_v1'):
+def _trainer_ddpg(env, defconfig):
     config = DDPG_DEFAULT_CONFIG.copy()
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
-
-    config["model"] = {
-        "custom_model": model,
-        "custom_options": {}
-    }
 
     trainer = DDPGTrainer(config=config, env=env)
 
     return trainer
 
 
-def _trainer_apex_ddpg(env, defconfig, model='svggnet_v1'):
+def _trainer_apex_ddpg(env, defconfig):
     config = APEX_DDPG_DEFAULT_CONFIG.copy()
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
     config["exploration_should_anneal"] = True
 
-    config["model"] = {
-        "custom_model": model,
-        "custom_options": {}
-    }
-
     trainer = ApexDDPGTrainer(config=config, env=env)
 
     return trainer
 
 
-def _trainer_ppo(env, defconfig, model='svggnet_v1'):
+def _trainer_ppo(env, defconfig):
     config = PPO_DEFAULT_CONFIG.copy()
     _copy_dict(defconfig, config)
 
@@ -130,11 +134,6 @@ def _trainer_ppo(env, defconfig, model='svggnet_v1'):
     config["sample_batch_size"] = 200
     config["sgd_minibatch_size"] = 500
     config["num_sgd_iter"] = 30
-
-    config["model"] = {
-        "custom_model": model,
-        "custom_options": {}
-    }
 
     trainer = PPOTrainer(config=config, env=env)
 
