@@ -33,7 +33,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     render = render == '1'
     comet = comet == '1'
 
-    comet = new_experiment(disabled=comet is None)
+    comet = new_experiment(disabled=comet is False)
     comet_rpc_server, comet_client_gen = new_rpc_experiment_logger(comet, 'localhost', 8089)
 
     model_config = MODEL_DEFAULTS.copy()
@@ -109,6 +109,7 @@ def _trainer_ddpg(env, defconfig):
     _copy_dict(defconfig, config)
 
     config["use_state_preprocessor"] = True
+    config["pure_exploration_steps"] = 10000
 
     trainer = DDPGTrainer(config=config, env=env)
 
