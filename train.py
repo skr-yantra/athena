@@ -17,8 +17,14 @@ import models
 
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None, model=None,
-          num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={}):
-    ray.init()
+          num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={},
+          object_store_memory=None, worker_memory=None):
+    parse_memory = lambda v: None if v is None else int(v) * 1024 * 1024
+
+    ray.init(
+        object_store_memory=parse_memory(object_store_memory),
+        memory=parse_memory(worker_memory)
+    )
 
     iterations = int(iterations)
     save_frequency = int(save_frequency)
