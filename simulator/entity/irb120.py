@@ -56,6 +56,15 @@ class IRB120(Entity):
         self._grasp_interrupt = BooleanStateInterrupt(lambda: self.grasp_force > 5)
         self._grasp_force_filter = MovingAverage(count=120, shape=(1, ))
 
+        for i in GRIPPER_FINGER_INDICES:
+            self._pb_client.changeDynamics(
+                bodyUniqueId=self._id,
+                linkIndex=i,
+                lateralFriction=0.75,
+                spinningFriction=0.75,
+                rollingFriction=0.75,
+            )
+
     def update_state(self):
         force = self._grasp_force_state
         self._grasp_force_filter.update(force)
