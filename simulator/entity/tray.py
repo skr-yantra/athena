@@ -24,7 +24,7 @@ class Tray(Entity):
 
     def add_random_cube(self):
         bb = self.bounding_box
-        pos = np.random.uniform(bb[0] + [0.025, 0.025, self.z_end], bb[1] - [0.025, 0.025, self.z_end+0.1])
+        pos = np.random.uniform(bb[0] + [0.02, 0.02, self.z_end], bb[1] - [0.02, 0.02, self.z_end+0.1])
         ori = np.random.uniform((0, ) * 3, (np.pi * 2, ) * 3)
         cube = Cube(pb_client=self._pb_client, position=pos,
                     orientation=self._pb_client.getQuaternionFromEuler(ori), debug=self._debug)

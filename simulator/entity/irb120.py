@@ -60,7 +60,7 @@ class IRB120(Entity):
             self._pb_client.changeDynamics(
                 bodyUniqueId=self._id,
                 linkIndex=i,
-                lateralFriction=0.75,
+                lateralFriction=0.5,
             )
 
     def update_state(self):

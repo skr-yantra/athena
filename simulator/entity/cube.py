@@ -14,5 +14,5 @@ class Cube(Entity):
         self._pb_client.changeDynamics(
             bodyUniqueId=self._id,
             linkIndex=-1,
-            lateralFriction=0.75,
+            lateralFriction=0.5,
         )

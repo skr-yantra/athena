@@ -6,12 +6,14 @@ from gym import Env
 from gym.spaces import Box
 
 from configs import read_params
-from simulator.env.table_clearing import EpisodeState, Action
+from simulator.env.table_clearing import EpisodeState, Episode
 from simulator.env.table_clearing import Environment as TableClearingEnv, Action
 from .reward import RewardLog, RewardSession
 
 
 class GymEnvironment(Env):
+
+    _episode: Episode
 
     def __init__(self, config):
         super(GymEnvironment, self).__init__()
@@ -49,13 +51,73 @@ class GymEnvironment(Env):
             target_position, target_orientation = self._target_pose
 
         self._env.robot.reset_joint_states()
-        self._env.robot.set_gripper_finger(True)
+        self._env.robot.open_gripper()
         self._env.robot.set_gripper_pose(gripper_position, gripper_orientation).spin(self._env)
 
         self._episode = self._env.new_episode(target_position=target_position, target_orientation=target_orientation)
         self._reward_calc = RewardCalculator(self._episode.state())
 
         self._env.spin(240)
+
+        def state_initial():
+            self._approach_safe_zone()
+
+        def state_approached_grasp_zone():
+            state_initial()
+            self._approach_grasp_zone()
+
+        def state_approach_target():
+            state_approached_grasp_zone()
+            self._approach_target()
+
+        def state_held():
+            state_approach_target()
+            self._env.robot.close_gripper()
+            self._approach_target()
+
+        def state_grasped():
+            state_held()
+            self._approach_grasp_zone()
+
+        def state_grasped_safe_zone():
+            state_grasped()
+            self._approach_safe_zone()
+
+        state_choices = [
+            state_initial,
+            state_approached_grasp_zone,
+            state_approach_target,
+            state_held,
+            state_grasped,
+            state_grasped_safe_zone
+        ]
+
+        if self._target_pose is None:
+            state_choices[np.random.choice(len(state_choices))]()
+
+    def _approach_grasp_zone(self):
+        target_position = self._episode.target.position
+        target_orientation = self._episode.target.orientation_euler
+
+        gripper_approach_position = target_position + [0, 0, 0.02]
+        gripper_approach_orientation = self._env.pb_client.getQuaternionFromEuler(
+            (math.pi/2, math.pi/2, target_orientation[2])
+        )
+
+        self._env.robot.set_gripper_pose(gripper_approach_position, gripper_approach_orientation).spin(self._env)
+
+    def _approach_target(self):
+        self._env.robot.set_gripper_pose(
+            np.array([0, 0, -0.002]) + self._episode.target.position, self._env.robot.gripper_pose[1]).spin(self._env)
+
+    def _approach_safe_zone(self):
+        safe_min = np.array([-0.5, -0.5, 0.4])
+        safe_max = np.array([0.5, -0.15, 0.8])
+        self._env.robot.set_gripper_pose(
+            np.random.uniform(safe_min, safe_max),
+            pb.getQuaternionFromEuler((math.pi/2, math.pi/2, np.random.uniform(0, 2.0 * math.pi)))
+        )
+        self._env.spin(240*3)
 
     def step(self, action):
         action = np.array(action)
