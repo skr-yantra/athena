@@ -15,6 +15,4 @@ class Cube(Entity):
             bodyUniqueId=self._id,
             linkIndex=-1,
             lateralFriction=0.75,
-            spinningFriction=0.75,
-            rollingFriction=0.75,
         )

@@ -61,8 +61,6 @@ class IRB120(Entity):
                 bodyUniqueId=self._id,
                 linkIndex=i,
                 lateralFriction=0.75,
-                spinningFriction=0.75,
-                rollingFriction=0.75,
             )
 
     def update_state(self):
