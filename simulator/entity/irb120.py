@@ -31,7 +31,7 @@ def to_deg(ori):
 class IRB120(Entity):
 
     def __init__(self, pb_client=pb, position=(0, 0, 0), orientation=(0, 0, 0, 1),
-                 fixed=True, scale=1., max_finger_force=200., debug=False, gravity=9.81):
+                 fixed=True, scale=1., max_finger_force=500., debug=False, gravity=9.81):
         self._debug = debug
 
         urdf = abb_irb120()
@@ -55,13 +55,6 @@ class IRB120(Entity):
 
         self._grasp_interrupt = BooleanStateInterrupt(lambda: self.grasp_force > 5)
         self._grasp_force_filter = MovingAverage(count=120, shape=(1, ))
-
-        for i in GRIPPER_FINGER_INDICES:
-            self._pb_client.changeDynamics(
-                bodyUniqueId=self._id,
-                linkIndex=i,
-                lateralFriction=0.5,
-            )
 
     def update_state(self):
         force = self._grasp_force_state
@@ -205,7 +198,9 @@ class IRB120(Entity):
             GRIPPER_FINGER_INDICES,
             pb.POSITION_CONTROL,
             joint_states,
-            forces=(self._max_finger_force,) * 2
+            forces=(self._max_finger_force,) * 2,
+            positionGains=(0.3,) * len(joint_states),
+            velocityGains=(1.,) * len(joint_states)
         )
 
         return self._make_finger_joint_interrupt(joint_states)

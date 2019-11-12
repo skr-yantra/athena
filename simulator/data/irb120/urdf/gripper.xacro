@@ -12,27 +12,59 @@
     joint_xyz="${orig_link6_joint}"
   />
 
-  <xacro:irb_120_link
-    name="gripper_finger1"
-    mesh="gripper_finger"
-    orig_xyz="${orig_gripper_finger1}"
-    orig_rpy="${orig_gripper_finger1_rpy}"
-    parent="gripper_base"
-    joint_xyz="${orig_gripper_base_joint}"
-    joint_type="prismatic"
-    joint_range="${orig_gripper_base_joint_range}"
-    joint_axis="0 -1 0"
-  />
+  <link name="gripper_finger1">
+    <contact>
+      <lateral_friction value="1"/>
+      <spinning_friction value="1"/>
+    </contact>
+    <collision>
+      <geometry>
+        <box size="0.0025 0.005 0.025" />
+      </geometry>
+      <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0.0445 -0.0025 0"/>
+    </collision>
+    <visual>
+      <geometry>
+          <mesh filename="../cad/gripper_finger.dae" scale="1"/>
+      </geometry>
+      <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0 0 0"/>
+    </visual>
+  </link>
 
-  <xacro:irb_120_link
-    name="gripper_finger2"
-    mesh="gripper_finger"
-    orig_xyz="${orig_gripper_finger2}"
-    orig_rpy="${orig_gripper_finger2_rpy}"
-    parent="gripper_base"
-    joint_xyz="${orig_gripper_base_joint}"
-    joint_type="prismatic"
-    joint_range="${orig_gripper_base_joint_range}"
-    joint_axis="0 1 0"
-  />
+  <joint name="joint_gripper_base_gripper_finger1" type="prismatic">
+    <axis xyz="0 -1 0"/>
+    <limit effort="1000.0" lower="0" upper="0.012" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="gripper_base"/>
+    <child link="gripper_finger1"/>
+    <dynamics damping="0" friction="0" spring_reference="0" spring_stiffness="0" />
+  </joint>
+
+  <link name="gripper_finger2">
+    <contact>
+      <lateral_friction value="1"/>
+      <spinning_friction value="1"/>
+    </contact>
+    <collision>
+      <geometry>
+        <box size="0.0025 0.005 0.025" />
+      </geometry>
+      <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0445 0.0025 0"/>
+    </collision>
+    <visual>
+      <geometry>
+          <mesh filename="../cad/gripper_finger.dae" scale="1"/>
+      </geometry>
+      <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"/>
+    </visual>
+  </link>
+
+  <joint name="joint_gripper_base_gripper_finger2" type="prismatic">
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="0" upper="0.012" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="gripper_base"/>
+    <child link="gripper_finger2"/>
+    <dynamics damping="0" friction="0" spring_reference="0" spring_stiffness="0" />
+  </joint>
 </robot>
