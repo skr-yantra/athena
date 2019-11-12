@@ -167,14 +167,16 @@ class IRB120(Entity):
             logging.debug('Out of bound joint states')
             return self._make_revolute_joint_interrupt(self.revolute_joint_state)
 
-        self._pb_client.setJointMotorControlArray(
-            self._id,
-            REVOLUTE_JOINT_INDICES,
-            pb.POSITION_CONTROL,
-            limit_joint_states,
-            positionGains=(0.3,) * len(joint_states),
-            velocityGains=(1,) * len(joint_states)
-        )
+        for i, v in enumerate(REVOLUTE_JOINT_INDICES):
+            self._pb_client.setJointMotorControl2(
+                bodyUniqueId=self._id,
+                jointIndex=v,
+                controlMode=pb.POSITION_CONTROL,
+                targetPosition=joint_states[i],
+                positionGain=0.3,
+                velocityGain=1.,
+                maxVelocity=4.,
+            )
 
         return self._make_revolute_joint_interrupt(limit_joint_states)
 
