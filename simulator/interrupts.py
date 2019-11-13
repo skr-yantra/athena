@@ -12,7 +12,7 @@ class Interrupt(object):
 
     def spin(self, env, max_time=None):
         counter = 0
-        while not self.should_interrupt() or (max_time is not None and counter > max_time * 240):
+        while not self.should_interrupt() and (max_time is None or counter < max_time * 240):
             env.step()
             counter += 1
 
