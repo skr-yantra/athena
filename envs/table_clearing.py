@@ -1,3 +1,4 @@
+import time
 import math
 
 import pybullet as pb
@@ -95,14 +96,20 @@ class GymEnvironment(Env):
             state_grasped_safe_zone
         ]
 
+        def init_env_state(state):
+            state()
+
+            if self._episode.state().collided:
+                self._setup_new_episode()
+
         if self._target_pose is None:
-            state_choices[np.random.choice(len(state_choices))]()
+            init_env_state(state_choices[np.random.choice(len(state_choices))])
 
     def _approach_grasp_zone(self):
         target_position = self._episode.target.position
         target_orientation = self._episode.target.orientation_euler
 
-        gripper_approach_position = target_position + [0, 0, 0.02]
+        gripper_approach_position = target_position + [0, 0, 0.15]
         gripper_approach_orientation = self._env.pb_client.getQuaternionFromEuler(
             (math.pi/2, math.pi/2, target_orientation[2])
         )
