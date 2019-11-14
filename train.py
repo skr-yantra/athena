@@ -133,10 +133,11 @@ def _trainer_ppo(env, defconfig):
     config["vf_clip_param"] = 100.0
     config["entropy_coeff"] = 0.01
 
-    config["train_batch_size"] = 5000
+    config["train_batch_size"] = 50000
     config["sample_batch_size"] = 200
-    config["sgd_minibatch_size"] = 500
+    config["sgd_minibatch_size"] = 4096
     config["num_sgd_iter"] = 30
+    config["batch_mode"] = "complete_episodes"
 
     trainer = PPOTrainer(config=config, env=env)
 
