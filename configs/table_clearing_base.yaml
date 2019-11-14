@@ -18,5 +18,5 @@ reward:
   max_actions: -3.0
 
 episode:
-  max_time: 300 #seconds
-  max_actions: 5000
+  max_time: 180 #seconds
+  max_actions: 3000
