@@ -1,4 +1,5 @@
 import os
+import logging
 
 from comet import new_experiment, new_rpc_experiment_logger
 
@@ -133,9 +134,9 @@ def _trainer_ppo(env, defconfig):
     config["vf_clip_param"] = 100.0
     config["entropy_coeff"] = 0.01
 
-    config["train_batch_size"] = 50000
+    config["train_batch_size"] = 10240
     config["sample_batch_size"] = 200
-    config["sgd_minibatch_size"] = 4096
+    config["sgd_minibatch_size"] = 512
     config["num_sgd_iter"] = 30
     config["batch_mode"] = "complete_episodes"
 
@@ -147,6 +148,7 @@ def _trainer_ppo(env, defconfig):
 def _handle_episode_end(info):
     episode = info['episode']
     _flatten_info(episode.last_info_for(), episode.custom_metrics)
+    logging.info('Episode completed info: {}'.format(episode.custom_metrics))
 
 
 def _flatten_info(info, out, prefix=None):
