@@ -59,29 +59,32 @@ class GymEnvironment(Env):
 
         self._env.spin(240)
 
+        def spin(interrupt):
+            interrupt.spin(self._env, max_time=10.)
+
         def state_initial():
-            self._approach_safe_zone()
+            spin(self._approach_safe_zone())
 
         def state_approached_grasp_zone():
             state_initial()
-            self._approach_grasp_zone()
+            spin(self._approach_grasp_zone())
 
         def state_approach_target():
             state_approached_grasp_zone()
-            self._approach_target()
+            spin(self._approach_target())
 
         def state_held():
             state_approach_target()
-            self._env.robot.close_gripper()
-            self._approach_target()
+            spin(self._env.robot.close_gripper())
+            spin(self._approach_target())
 
         def state_grasped():
             state_held()
-            self._approach_grasp_zone()
+            spin(self._approach_grasp_zone())
 
         def state_grasped_safe_zone():
             state_grasped()
-            self._approach_safe_zone()
+            spin(self._approach_safe_zone())
 
         state_choices = [
             state_initial,
@@ -104,20 +107,24 @@ class GymEnvironment(Env):
             (math.pi/2, math.pi/2, target_orientation[2])
         )
 
-        self._env.robot.set_gripper_pose(gripper_approach_position, gripper_approach_orientation).spin(self._env)
+        return self._env.robot.set_gripper_pose(
+            gripper_approach_position,
+            gripper_approach_orientation
+        )
 
     def _approach_target(self):
-        self._env.robot.set_gripper_pose(
-            np.array([0, 0, -0.002]) + self._episode.target.position, self._env.robot.gripper_pose[1]).spin(self._env)
+        return self._env.robot.set_gripper_pose(
+            np.array([0, 0, -0.0026]) + self._episode.target.position,
+            self._env.robot.gripper_pose[1]
+        )
 
     def _approach_safe_zone(self):
         safe_min = np.array([-0.5, -0.5, 0.4])
         safe_max = np.array([0.5, -0.15, 0.8])
-        self._env.robot.set_gripper_pose(
+        return self._env.robot.set_gripper_pose(
             np.random.uniform(safe_min, safe_max),
             pb.getQuaternionFromEuler((math.pi/2, math.pi/2, np.random.uniform(0, 2.0 * math.pi)))
         )
-        self._env.spin(240*3)
 
     def step(self, action):
         action = np.array(action)
