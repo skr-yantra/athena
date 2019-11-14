@@ -6,16 +6,16 @@ reward:
   travel_to_target: 100 # per meter
   travel_to_dest: 100 # per meter
 
-  grasped: 500.0
-  delivered: 1000.0
-  enter_src_tray_not_grasped: 50.0
+  grasped: 5.0
+  delivered: 10.0
+  enter_src_tray_not_grasped: 1.0
 
-  dropped: -1000.0
-  collided: -1000.0
-  exit_src_tray_not_grasped: -100.0
+  dropped: -10.0
+  collided: -10.0
+  exit_src_tray_not_grasped: -2.0
 
-  max_time: -1000.0
-  max_actions: -1000.0
+  max_time: -10.0
+  max_actions: -10.0
 
 episode:
   max_time: 300 #seconds
