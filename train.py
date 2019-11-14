@@ -19,7 +19,7 @@ import models
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None, model=None,
           num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={},
-          object_store_memory=None, worker_memory=None):
+          log_level="DEBUG", object_store_memory=None, worker_memory=None):
     parse_memory = lambda v: None if v is None else int(v) * 1024 * 1024
 
     ray.init(
@@ -55,7 +55,8 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
             "on_episode_step": _make_episode_step_handler(comet_client_gen()),
             "on_episode_end": _handle_episode_end,
         },
-        "model": model_config
+        "model": model_config,
+        "log_level": log_level,
     }
 
     trainer = _get_trainer(algorithm, environment, config, config_trainer)
