@@ -248,7 +248,10 @@ class RewardCalculator(object):
         self._s_tm1 = state
         self._log.log(rewards)
 
-        return rewards.sum(), done
+        total_reward = rewards.sum()
+        assert np.isfinite(total_reward)
+
+        return total_reward, done
 
     def _calc_travel_reward(self, state, dist_reduced, rate):
         dist_travelled = np.linalg.norm(np.array(state.gripper_pos) - self._s_tm1.gripper_pos)
