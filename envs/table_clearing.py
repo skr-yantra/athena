@@ -1,4 +1,4 @@
-import time
+import logging
 import math
 
 import pybullet as pb
@@ -103,7 +103,9 @@ class GymEnvironment(Env):
                 self._setup_new_episode()
 
         if self._target_pose is None:
-            init_env_state(state_choices[np.random.choice(len(state_choices))])
+            state = state_choices[np.random.choice(len(state_choices))]
+            logging.info("Initializing environment with state {}".format(state.__name__))
+            init_env_state(state)
 
     def _approach_grasp_zone(self):
         target_position = self._episode.target.position
@@ -134,6 +136,9 @@ class GymEnvironment(Env):
         )
 
     def step(self, action):
+        if np.any(np.isnan(action)):
+            raise Exception('Invalid action {}'.format(action))
+
         action = np.array(action)
         action[:3] = action[:3] * 0.01
         action[3] = 10. * action[3] * math.pi / 180.0
