@@ -64,6 +64,9 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     if checkpoint is not None:
         trainer.restore(checkpoint)
 
+    comet.set_model_graph(trainer.get_policy().model.base_model.to_json())
+    logging.info(trainer.get_policy().model.base_model.summary())
+
     for i in range(iterations):
         result = trainer.train()
         print(pretty_print(result))
