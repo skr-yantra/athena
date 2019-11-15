@@ -135,7 +135,7 @@ def _trainer_ppo(env, defconfig):
     config["vf_clip_param"] = 100.0
     config["entropy_coeff"] = 0.01
 
-    config["train_batch_size"] = 10240
+    config["train_batch_size"] = 1024
     config["sample_batch_size"] = 200
     config["sgd_minibatch_size"] = 512
     config["num_sgd_iter"] = 30
