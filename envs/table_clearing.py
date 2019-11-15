@@ -23,7 +23,7 @@ class GymEnvironment(Env):
         pb.connect(pb.GUI if self._render else pb.DIRECT)
 
         self.action_space = Box(shape=(5, ), high=1., low=-1., dtype=np.float32)
-        self.observation_space = Box(shape=(84, 84, 4), low=0, high=255, dtype=np.uint8)
+        self.observation_space = Box(shape=(84, 84, 4), low=0, high=1, dtype=np.float32)
 
         self._env = TableClearingEnv(realtime=self._realtime, debug=self._debug)
         self._episode = None
@@ -137,7 +137,7 @@ class GymEnvironment(Env):
 
     def step(self, action):
         if np.any(np.isnan(action)):
-            raise Exception('Invalid action {}'.format(action))
+            print('Invalid action {}'.format(action))
 
         action = np.array(action)
         action[:3] = action[:3] * 0.01
@@ -158,8 +158,8 @@ class GymEnvironment(Env):
         rgba, depth = state.gripper_camera
         obs = np.zeros((rgba.shape[0], rgba.shape[1], 4))
 
-        obs[:, :, :3] = rgba[:, :, :3]
-        obs[:, :, 3] = depth
+        obs[:, :, :3] = rgba[:, :, :3] / 255.
+        obs[:, :, 3] = depth / 255.
 
         return obs
 
