@@ -137,7 +137,7 @@ class GymEnvironment(Env):
 
     def step(self, action):
         if np.any(np.isnan(action)):
-            print('Invalid action {}'.format(action))
+            raise Exception('Invalid action {}'.format(action))
 
         action = np.array(action)
         action[:3] = action[:3] * 0.01
