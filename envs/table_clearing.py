@@ -178,7 +178,20 @@ class RewardCalculator(object):
     def __init__(self, initial_state, params=read_params('table_clearing_base')):
         self._s_tm1 = initial_state
         self._params = params
-        self._log = RewardLog()
+        self._log = RewardLog([
+            'time_penalty',
+            'action_penalty',
+            'travel_to_target_penalty',
+            'travel_to_dest_penalty',
+            'enter_src_tray_reward',
+            'exit_src_tray_penalty',
+            'grasp_reward',
+            'drop_penalty',
+            'reach_destination_reward',
+            'collision_penalty',
+            'max_time_penalty',
+            'max_actions_penalty',
+        ])
 
     def update(self, episode, state: EpisodeState):
         rewards = RewardSession()

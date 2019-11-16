@@ -3,12 +3,11 @@ from attrdict import AttrDict, AttrDefault
 
 class RewardLog(object):
 
-    def __init__(self):
+    def __init__(self, keys):
         super(RewardLog, self).__init__()
         self._log = AttrDict()
 
-    def _log_item(self, key, value):
-        if key not in self._log:
+        for key in keys:
             self._log[key] = AttrDict(
                 count=0,
                 sum=0,
@@ -16,6 +15,10 @@ class RewardLog(object):
                 max=0.0,
                 min=0.0
             )
+
+    def _log_item(self, key, value):
+        if key not in self._log:
+            raise Exception('Unknown key {}. Registered keys are {}'.format(key, self._log.keys()))
 
         log = self._log[key]
 
