@@ -1,18 +1,18 @@
 # Table clearing environment trainer hyper parameters configs
 
 reward:
-  time: -5 # per second
+  time: 0 # per second
   action_penalty: -1
-  travel_to_target: 100 # per meter
-  travel_to_dest: 100 # per meter
+  travel_to_target: 0 # per meter
+  travel_to_dest: 0 # per meter
 
-  grasped: 5.0
-  delivered: 10.0
-  enter_src_tray_not_grasped: 1.0
+  grasped: 100.0
+  delivered: 200.0
+  enter_src_tray_not_grasped: 10.0
 
-  dropped: -10.0
+  dropped: -200.0
   collided: -1000.0
-  exit_src_tray_not_grasped: -2.0
+  exit_src_tray_not_grasped: -22.0
 
   max_time: -3.0
   max_actions: -3.0
