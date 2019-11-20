@@ -2,15 +2,20 @@ import threading
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.client import ServerProxy
 
-from comet_ml import Experiment
+from comet_ml import Experiment, ExistingExperiment
 
 
-def new_experiment(disabled=False):
-    return Experiment(
+def new_experiment(experiment_key=None, disabled=False):
+    params = dict(
         api_key="lzBiJi5UcZCwhAqlFNCUP4Qpg",
         project_name="athena",
         workspace="skr-io7803",
         disabled=disabled,
+    )
+
+    return Experiment(**params) if experiment_key is None else ExistingExperiment(
+        **params,
+        previous_experiment=experiment_key
     )
 
 

@@ -19,7 +19,7 @@ import models
 
 def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', checkpoint=None, model=None,
           num_workers='1', render='0', comet='0', save_frequency='10', algorithm='PPO', config_trainer={},
-          log_level="DEBUG", object_store_memory=None, worker_memory=None):
+          comet_key=None, log_level="DEBUG", object_store_memory=None, worker_memory=None):
     parse_memory = lambda v: None if v is None else int(v) * 1024 * 1024
 
     ray.init(
@@ -34,7 +34,7 @@ def train(environment='table-clearing-v0', iterations='1000', num_gpus='1', chec
     render = render == '1'
     comet = comet == '1'
 
-    comet = new_experiment(disabled=comet is False)
+    comet = new_experiment(disabled=comet is False, experiment_key=comet_key)
     comet_rpc_server, comet_client_gen = new_rpc_experiment_logger(comet, 'localhost', 8089)
 
     model_config = MODEL_DEFAULTS.copy()
