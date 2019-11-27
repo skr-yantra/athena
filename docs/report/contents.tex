@@ -1,0 +1,19 @@
+\renewcommand*\contentsname{CONTENTS}
+
+\tableofcontents
+\newpage
+\renewcommand*\listtablename{LIST OF TABLES} 
+\renewcommand*\listfigurename{LIST OF FIGURES} 
+\newpage
+\newcommand*{\noaddvspace}{\renewcommand*{\addvspace}[1]{}}
+\addtocontents{lot}{\protect\noaddvspace}
+\addcontentsline{toc}{chapter}{\MakeUppercase{List of Tables}}
+\listoftables
+\newpage
+
+\addtocontents{lof}{\protect\noaddvspace}
+\addcontentsline{toc}{chapter}{\MakeUppercase{List of Figures}}
+\listoffigures
+
+\newpage
+\pagenumbering{arabic}

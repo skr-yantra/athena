@@ -1,0 +1,19 @@
+\chapter{Conclusions and Future Work}
+
+\section{Conclusions}
+\begin{itemize}
+	\item Reward shaping is critical. Small changes in reward function can change the learning process.
+	\item Providing +ve reward when end effector moves towards target and -ve reward when end effector moves away will not work. It will teach robot to move the target object instead of grasping it.
+	\item Initializing each episode at a random state like grasped and not grasped can improve training speed
+	\item PPO is not sample efficient and requires lot of training data. After 4M timesteps, PPO was not able to learn optimum policy. Training for more timesteps (~80M) might help.
+\end{itemize}
+
+\section{Future works}
+\begin{itemize}
+	\item Training PPO for more timesteps (~80M)
+	\item Including DDPG and RHPO baseline models
+	\item Evaluating baseline models on real robot
+	\item Evaluating skill transferability in RHPO
+	\item Exploring methods for automatic task decomposition
+	\item Exploring methods for sub policy interpretability in RHPO
+\end{itemize}
