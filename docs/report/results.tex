@@ -1,56 +1,62 @@
-\chapter{Results}
+\chapter{Experimental Results}
+In this chapter, the testbed is used for evaluation of various standard RL algorithms for vision based robot manipulation tasks.
 
-\section{Proximal Policy Optimization (PPO)}
+\section{Simulator performance}
+The simulation environment can be run in following configurations
 
-PPO is an on policy, stochastic and policy gradient based reinforcement learning method \cite{ppo}. The objective function of PPO is 
-
-\begin{equation}
-L^{CLIP} (\theta) = \hat{E}_t \left[ min(r_t(\theta) \hat{A}_t, clip(r_t(\theta), 1 - \epsilon, 1 + \epsilon) \hat{A}_t) \right]
-\end{equation}
-
-Where
 \begin{itemize}
-	\item $\theta$ is the policy parameter
-	\item $\hat{E}_t$ denotes the empirical expectation over timesteps
-	\item $r_t$ is the ratio of probability under the new and old policies, respectively
-	\item $\hat{A}_t$ is the estimated advantage at time $t$
-	\item $\epsilon$ is a hyperparameter, usually 0.1 or 0.2
+	\item Realtime mode - Simulation is run at realtime with rendering ON
+	\item Fast rendering mode - Simulation is run rendering turned on but not at realtime
+	\item Fast non rendering mode - Simulation is run with rendering and realtime turned OFF
 \end{itemize}
 
-\subsection{Architecture}
-PPO requires two neural networks, value network to calculate advantage of taking an action and policy network for predicting mean and variance of an action to maximize reward at a given state. We use 3 layer CNN for extracting features from image of gripper camera. The input image shape is $84 \times 84 \times 4$. Fourth channel is depth value. The value network and policy network can share this 3 layer CNN for feature extraction. But since loss functions of value network and policy network are different, sharing the CNN layers might optimize the CNN layers for either value or policy network. This can be fixed by scaling the loss functions of value and policy network to same scale.
+The metric used for measuring performance of simulator is action time. Action time is the time taken by the simulator to execute a particular action
 
-\begin{figure}[H]
+\begin{figure}
+	\caption{Simulator performance at different modes (Mode vs Mean Action Time)}
 	\centering
-	\includegraphics[scale=0.5]{ppo-arch}
-	\caption{PPO network architecture}
+	\includegraphics[scale=0.7]{benchmark-table-clearing.png}
 \end{figure}
 
-\subsection{Table clearing environment}
-\subsubsection{Simulation}
+\begin{table}
+	\caption{Simulator performance (Mean action time in seconds) at different modes}
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		\textbf{Render | Realtime} & \textbf{Mean} & \textbf{Std} & \textbf{Min} & \textbf{25\%} & \textbf{50\%} & \textbf{75\%} & \textbf{Max} \\
+		\hline
+		ON | ON & 0.912 & 2.783 & 0.138 & 0.358 & 0.374 & 0.39 & 26.33 \\
+		\hline
+		ON | OFF & 0.345 & 0.583 & 0.0793 & 0.198 & 0.206 & 0.214 & 4.342 \\
+		\hline
+		OFF | OFF & 0.053 & 0.023 & 0.041 & 0.046 & 0.047 & 0.048 & 0.201 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\section{Table clearing environment}
 After training PPO agent on table clearing environment using 8 core 42GB RAM Nvidia T4 GPU system for 4M timesteps, results are shown below
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{ppo-simulation-collision-penalty}
+	\includegraphics[scale=1]{ppo-simulation-collision-penalty}
 	\caption{Collision penalty. Optimum value is 0}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{ppo-simulation-grasp-reward}
+	\includegraphics[scale=1]{ppo-simulation-grasp-reward}
 	\caption{Grasp reward. Optimum value is 100}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{ppo-simulation-drop-penalty}
+	\includegraphics[scale=1]{ppo-simulation-drop-penalty}
 	\caption{Drop penalty. Optimum value is 100}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{ppo-simulation-reward-mean}
+	\includegraphics[scale=1]{ppo-simulation-reward-mean}
 	\caption{Mean episode reward. Optimum value $\ge 200$}
 \end{figure}
 

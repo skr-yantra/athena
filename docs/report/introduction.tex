@@ -6,33 +6,24 @@ In order to assist in general tasks, autonomous robots should be able to interac
 Methods for robot manipulation can be broadly classified into traditional and data driven methods. In traditional methods, data from camera is interpreted using computer vision algorithms and actions are hand coded based on interpreted state. This approach works well for robots deployed for specific task like in automated production lines. But in stochastic and non stationary environments, it is not possible to hand code actions for all environment states. On the other hand data driven methods, particularly reinforcement learning have shown great potential in this use case. In reinforcement learning, an agent learns to take actions (policy) based on measured environment state by interacting with the environment through trial and error for maximising a feedback signal (reward or value function). The main challenge in this method is requirement of large amount of data for agent to learn. Collecting large amount of data from real robot will be slow and expensive and might require manual intervention. Instead, for faster and cheaper development, agent can be trained on simulated robot manipulation environment. However policies trained on simulated environments are not directly transferable to real robots due to various differences between simulation and real environments.
 
 \section{Research Gap}
-Current reinforcement learning methods used for robot manipulation have following limitations
+Current testbeds available for vision based robot manipulation for reinforcement learning have following limitations
 \begin{itemize}
-	\item Low success rate when transferring policies from simulation to real world. Since it is extremely difficult and expensive to collect data and train using real robot, transferring policies from simulation to real world with minimal performance degradation is important
-	\item Low sample efficiency requiring lot of data for training
-	\item Low interpretability of learned models
-	\item Difficult predictability when transferring of learned skills
-\end{itemize}
-
-\noindent Current hierarchical reinforcement learning method (RHPO) used for robot manipulation have following limitations
-\begin{itemize}
-	\item Transferring policies from simulation to real world is not evaluated
-	\item Requires manual task decomposition
-	\item Low interpretability
+	\item Slow training data collection speed
+	\item Non standard/readily available frameworks used
 \end{itemize}
 
 \section{Objectives}
 \begin{itemize}
-	\item Compare hierarchical reinforcement learning method RHPO with reinforcement learning methods DDPG and PPO for vision based robot manipulation
-	\item Evaluate transferability of skills for similar robot manipulation tasks
-	\item Explore methods for automatic task decomposition in RHPO
-	\item Explore methods to explain RHPO sub-task policies
+	\item Improve RL model training speed by running multiple simulations in parallel
+	\item Use standard frameworks that support training distributed RL algorithms
+	\item Flexibility for adding different types of robot manipulation tasks like grasping, moving etc.
 \end{itemize}
 
 \section{Outline of Report}
 \begin{itemize}
 	\item Chapter 1 gives an introduction to project and outline of this report
 	\item Chapter 2 gives an overview of previous works done
-	\item Chapter 3 gives details of simulation setup used to train reinforcement learning agents
-	\item Chapter 4 gives brief introduction to various reinforcement learning algorithms evaluated and their performance in various environments
+	\item Chapter 3 gives details of simulation and hardware setup used to train reinforcement learning agents
+	\item Chapter 4 gives the specifications of simulation environment and hardware used for evaluating testbed
+	\item Chapter 5 gives the performance of simulator and testbed evaluation results of PPO in table clearing environment
 \end{itemize}

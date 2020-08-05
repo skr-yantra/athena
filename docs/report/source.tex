@@ -1,0 +1,140 @@
+\chapter*{APPENDIX}
+\addcontentsline{toc}{chapter}{APPENDIX}
+
+\section*{Source code}
+\subsection*{URDF model of IRB 120 robot with MetalWorks gripper}
+
+\lstinputlisting[language=XML, caption=geometry.xacro: Defines the geometric properties and constraints of different links in IRB 120 robot]{../../simulator/data/irb120/urdf/geometry.xacro}
+
+\lstinputlisting[language=XML, caption=physics.xacro: Defines the mass and moment of inertia of different links in IRB 120 robot]{../../simulator/data/irb120/urdf/physics.xacro}
+
+\lstinputlisting[language=XML, caption=macros.xacro: Helper xacro function to generate common urdf code of different links in IRB 120 robot]{../../simulator/data/irb120/urdf/macros.xacro}
+
+\lstinputlisting[language=XML, caption=gripper.xacro: URDF of MetalWork W155032001 gripper ]{../../simulator/data/irb120/urdf/gripper.xacro}
+
+\lstinputlisting[language=XML, caption=main.xacro: Generate URDF of IRB 120 robot with MetalWork W155032001 gripper]{../../simulator/data/irb120/urdf/main.xacro}
+
+\subsection*{PyBullet Simulation environments}
+
+\lstinputlisting[language=Python, caption=env/base.py: Base class for simulation environments]{../../simulator/env/base.py}
+
+\lstinputlisting[language=Python, caption=env/irb120.py: Simple test environment with IRB 120 robot for debugging URDF model]{../../simulator/env/irb120.py}
+
+\lstinputlisting[language=Python, caption=env/table\_clearing.py: Table clearing reinforcement learning environment for IRB 120 robot with MetalWorks gripper environments]{../../simulator/env/table_clearing.py}
+
+\lstinputlisting[language=Python, caption=entity/base.py: Base class for objects in simulation environment]{../../simulator/entity/base.py}
+
+\lstinputlisting[language=Python, caption=entity/table.py: Loads table object into simulation environment]{../../simulator/entity/table.py}
+
+\lstinputlisting[language=Python, caption=entity/tray.py: Loads tray object into simulation environment]{../../simulator/entity/tray.py}
+
+\lstinputlisting[language=Python, caption=entity/cube.py: Loads cube object into simulation environment]{../../simulator/entity/cube.py}
+
+\lstinputlisting[language=Python, caption=entity/irb120.py: Loads IRB 120 robot with MetalWorks gripper object into simulation environment]{../../simulator/entity/irb120.py}
+
+\lstinputlisting[language=Python, caption=entity/ground.py: Loads ground object into simulation environment]{../../simulator/entity/ground.py}
+
+\lstinputlisting[language=Python, caption=sensors/base.py: Base class for sensors in simulation]{../../simulator/sensors/base.py}
+
+\lstinputlisting[language=Python, caption=sensors/camera.py: Loads RGB-D depth camera sensor into simulation]{../../simulator/sensors/camera.py}
+
+\lstinputlisting[language=Python, caption=interrupts.py: Interrupts used to detect different simulator states like collision state]{../../simulator/interrupts.py}
+
+\lstinputlisting[language=Python, caption=filter.py: Moving average filter for smoothening readings from gripper force sensor]{../../simulator/filter.py}
+
+\lstinputlisting[language=Python, caption=utils.py: Common utility functions]{../../simulator/utils.py}
+
+\subsection*{Evaluation using PPO reinforcement learning algorithm}
+
+\begin{lstlisting}[language=Python, caption=comet.py: Logs experiment results and model weights to comet.ml platform]
+
+import threading
+from xmlrpc.server import SimpleXMLRPCServer
+from xmlrpc.client import ServerProxy
+
+from comet_ml import Experiment, ExistingExperiment
+
+
+def new_experiment(experiment_key=None, disabled=False):
+	params = dict(
+		api_key="api-key",
+		project_name="project-name",
+		workspace="workspace-name",
+		disabled=disabled,
+	)
+
+return Experiment(**params) if experiment_key is None else 
+	ExistingExperiment(
+		**params,
+		previous_experiment=experiment_key
+	)
+
+
+def new_rpc_experiment_logger(experiment: Experiment, host='localhost', port=8085):
+	methods = [i for i in dir(experiment) if callable(getattr(experiment, i))]
+	log_methods = [i for i in methods if i.startswith('log_')]
+	
+	server = SimpleXMLRPCServer((host, port), allow_none=True)
+	
+	def make_handler(method):
+		def handler(args, kwargs):
+			getattr(experiment, method)(*args, **kwargs)
+		
+		return handler
+	
+	for method in log_methods:
+		server.register_function(make_handler(method), method)
+	
+	def client_generator():
+		return ExperimentProxy(host, port)
+	
+	def worker():
+		server.serve_forever()
+	
+	threading.Thread(target=worker).start()
+	
+	return server, client_generator
+
+
+class ExperimentProxy(object):
+	
+	def __init__(self, host, port):
+		self._host = host
+		self._port = port
+		self._setup()
+	
+	def _setup(self):
+		self._proxy = ServerProxy('http://{}:{}'.format(self._host, self._port), allow_none=True)
+	
+	def __setstate__(self, state):
+		self._host = state['host']
+		self._port = state['port']
+		self._setup()
+	
+	def __getstate__(self):
+		return {
+		'host': self._host,
+		'port': self._port,
+		}
+	
+	def __getattr__(self, item):
+		if item in ('__setstate__', '__getstate__', '_setup'):
+			return getattr(self, item)
+		
+		attr = getattr(self._proxy, item)
+		
+		def proxy_caller(*args, **kwargs):
+			return attr(args, kwargs)
+		
+		if item.startswith('log_'):
+			return proxy_caller
+		
+		return attr
+
+
+\end{lstlisting}
+
+
+\lstinputlisting[language=Python, caption=train.py: PPO model trainer]{../../train.py}
+
+\lstinputlisting[language=Python, caption=evaluate.py: PPO model evaluator]{../../evaluate.py}

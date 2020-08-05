@@ -1,19 +1,7 @@
 \chapter{Conclusions and Future Work}
 
 \section{Conclusions}
-\begin{itemize}
-	\item Reward shaping is critical. Small changes in reward function can change the learning process.
-	\item Providing +ve reward when end effector moves towards target and -ve reward when end effector moves away will not work. It will teach robot to move the target object instead of grasping it.
-	\item Initializing each episode at a random state like grasped and not grasped can improve training speed
-	\item PPO is not sample efficient and requires lot of training data. After 4M timesteps, PPO was not able to learn optimum policy. Training for more timesteps (~80M) might help.
-\end{itemize}
+A testbed that aids in the development and benchmarking of various RL algorithms for robot manipulation tasks is developed. By using RayLib, the testbed can scale training speed with computational power. Also the testbed is integrated with CometML platform for experiment logging and tracking. The testbed is evaluated using PPO RL algorithm and the simulator performance is benchmarked at various configurations. Evaluation using PPO RL algorithm showed its low sample efficiency and high reliance on reward shaping.
 
 \section{Future works}
-\begin{itemize}
-	\item Training PPO for more timesteps (~80M)
-	\item Including DDPG and RHPO baseline models
-	\item Evaluating baseline models on real robot
-	\item Evaluating skill transferability in RHPO
-	\item Exploring methods for automatic task decomposition
-	\item Exploring methods for sub policy interpretability in RHPO
-\end{itemize}
+The current testbed is evaluated only using PPO algorithm. It would be beneficial to evaluate using other common RL algorithms like DDPG and RHPO. Also the testbed currently only provides table clearning robot manipulation task. Adding common tasks like stacking will be beneficial. Also evaluating the performance of policies trained using simulated environment on real robot will be beneficial
